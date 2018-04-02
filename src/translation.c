@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "libsodium.h"
+#include "sodium.h"
 
 #include "nano_lib.h"
-//#include "translation.h"
 
-#define ADDRESS_DATA_LEN 60
+#define ADDRESS_DATA_LEN 60 // Does not include null character
 
 // Helpers for Pub_key to address translation
 #define CHECKSUM_LEN 5
@@ -16,9 +15,14 @@
 #define B_00011  3
 #define B_00001  1
 
-nl_err_t nl_public_to_address(char *address_buf, const uint8_t address_buf_len,
+nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
         const uint256_t public_key){
     /* Translates a 256-bit binary public key into a NANO/XRB Address.
+     *
+     * address_buf will contain the resulting null terminated string
+     *
+     * This function does not contain sensitive data
+     *
      * Based on Roosmaa's Ledger S Nano Github
      */
     uint8_t k, i, c;
@@ -26,17 +30,18 @@ nl_err_t nl_public_to_address(char *address_buf, const uint8_t address_buf_len,
 
     crypto_generichash_state state;
 
-    if (address_buf_len < (strlen(ADDRESS_PREFIX) + ADDRESS_DATA_LEN)){
+    // sizeof includes the null character required
+    if (address_buf_len < (sizeof(CONFIG_NL_ADDRESS_PREFIX) + ADDRESS_DATA_LEN)){
         return E_INSUFFICIENT_BUF;
     }
 
-    crypto_generichash_init(  &state, NULL, 0, CHECKSUM_LEN);
-    crypto_generichash_update(&state, public_key, BIN_256);
+    crypto_generichash_init( &state, NULL, 0, CHECKSUM_LEN);
+    crypto_generichash_update( &state, public_key, BIN_256);
     crypto_generichash_final( &state, check, sizeof(check));
 
     // Copy in the prefix and shift pointer
     strcpy(address_buf, CONFIG_NL_ADDRESS_PREFIX);
-    address_buf += strlen(ADDRESS_PREFIX);
+    address_buf += strlen(CONFIG_NL_ADDRESS_PREFIX);
 
     // Helper macro to create a virtual array of check and public_key variables
     #define accGetByte(x) (uint8_t)( \
@@ -82,5 +87,6 @@ nl_err_t nl_public_to_address(char *address_buf, const uint8_t address_buf_len,
     #undef accGetByte
     
     address_buf[ADDRESS_DATA_LEN] = '\0';
+    return E_SUCCESS;
 }
 

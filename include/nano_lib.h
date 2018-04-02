@@ -8,7 +8,7 @@ typedef enum nl_err_t{
     E_SUCCESS=0,
     E_FAILURE,
     E_INSUFFICIENT_BUF
-} menu8g2_err_t;
+} nl_err_t;
 
 /* Generic Definitions */
 #define BIN_64 8
@@ -29,14 +29,14 @@ typedef enum nl_err_t{
 #define BURN_ADDRESS "xrb_1111111111111111111111111111111111111111111111111111hifc8npp"
 
 /* typedefs */
-typedef char uint128_t[BIN_128];
-typedef char uint128_hex_t[HEX_128];
+typedef unsigned char uint128_t[BIN_128];
+typedef char hex128_t[HEX_128];
 
-typedef char uint256_t[BIN_256];
-typedef char uint256_hex_t[HEX_256];
+typedef unsigned char uint256_t[BIN_256];
+typedef char hex256_t[HEX_256];
 
-typedef char uint512_t[BIN_512];
-typedef char uint256_hex_t[HEX_512];
+typedef unsigned char uint512_t[BIN_512];
+typedef char hex512_t[HEX_512];
 
 /* Lookup Tables */
 const char BASE32_ALPHABET[] = {
@@ -55,7 +55,7 @@ const uint8_t BASE32_TABLE[] = {
     0xff, 0x1c, 0x1d, 0x1e, 0x1f };
 
 /* Function Prototypes */
-nl_err_t nl_public_to_address(char *address, const uint8_t *public_key);
+nl_err_t nl_public_to_address(char address_buf[], uint8_t address_buf_len, const uint256_t public_key);
 
 //void raisecurity_sign_block(block_t *block);
 //void raisecurity_sign_digest(char[32]);

@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := menu8g2
+PROJECT_NAME := nano_lib
 
 EXTRA_COMPONENT_DIRS := $(IDF_PATH)/../third-party-components
 
