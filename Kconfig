@@ -1,16 +1,18 @@
 menu "Nano ESP32 Library Config"
-    config NL_ENABLE
+
+    config NANO_LIB_ENABLE
         bool
         prompt "Enable the Nano Library"
         default false
         help
             help text
 
-    config NL_ADDRESS_PREFIX
+    config NANO_LIB_ADDRESS_PREFIX
         string
         prompt "prefix to apply for address data"
-        depends on NL_ENABLE
+        depends on NANO_LIB_ENABLE
         default "xrb_"
         help
             Typically "xrb_" or "nano_"
+
 endmenu

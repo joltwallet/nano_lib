@@ -4,30 +4,51 @@
 #include <stdlib.h>
 #include <string.h>
 #include <esp_system.h>
+#include "sodium.h"
 
-#include "raisecurity.h"
+#include "nano_lib.h"
 
-TEST_CASE("HEX_256 to BIN_256", "[raisecurity]"){
+TEST_CASE("HEX_256 to BIN_256", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Mneumonic to Index", "[raisecurity]"){
+TEST_CASE("Mneumonic to Index", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Verify Mneumonic", "[raisecurity]"){
+TEST_CASE("Verify Mneumonic", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Seed From Mneumonic", "[raisecurity]"){
+TEST_CASE("Seed From Mneumonic", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Public Address To Public Key", "[raisecurity]"){
+TEST_CASE("Public Address To Public Key", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Seed To Public Address", "[raisecurity]"){
+TEST_CASE("Public Key To Public Address", "[nano_lib]"){
+    char guess_address[ADDRESS_BUF_LEN];
+    uint256_t test_public_key_bin;
+    nl_err_t res;
+
+    /* Test 1 */
+    sodium_hex2bin(test_public_key_bin, sizeof(test_public_key_bin), \
+            "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
+            BIN_256, NULL, NULL, NULL);
+    res = nl_public_to_address(guess_address,
+            sizeof(guess_address),
+            test_public_key_bin);
+    if(res != E_SUCCESS){
+        //todo: test fail
+    }
+    TEST_ASSERT_EQUAL_STRING(guess_address,
+            "xrb_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9");
+}
+
+#if 0
+TEST_CASE("Seed To Public Address", "[nano_lib]"){
     /* Tests all the way from Seed to Public Address.
      *
      * Tests multiple indices.
@@ -91,11 +112,11 @@ TEST_CASE("Seed To Public Address", "[raisecurity]"){
 #endif
 }
 
-TEST_CASE("Sign Digest", "[raisecurity]"){
+TEST_CASE("Sign Digest", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Sign Send Block", "[raisecurity]"){
+TEST_CASE("Sign Send Block", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
     char test_private_key_hex[HEX_256];
     char block_buf[BLOCK_BUF_LEN];
@@ -125,7 +146,7 @@ TEST_CASE("Sign Send Block", "[raisecurity]"){
 
 }
 
-TEST_CASE("Sign Receive Block", "[raisecurity]"){
+TEST_CASE("Sign Receive Block", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
     char test_private_key_hex[HEX_256];
     char block_buf[BLOCK_BUF_LEN];
@@ -147,7 +168,7 @@ TEST_CASE("Sign Receive Block", "[raisecurity]"){
      */
 }
 
-TEST_CASE("Sign Change Block", "[raisecurity]"){
+TEST_CASE("Sign Change Block", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
     char test_private_key_hex[HEX_256];
     char block_buf[BLOCK_BUF_LEN];
@@ -171,7 +192,7 @@ TEST_CASE("Sign Change Block", "[raisecurity]"){
      */
 }
 
-TEST_CASE("Sign Open Block", "[raisecurity]"){
+TEST_CASE("Sign Open Block", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 
     char test_private_key_hex[HEX_256];
@@ -197,19 +218,19 @@ TEST_CASE("Sign Open Block", "[raisecurity]"){
      */
 }
 
-TEST_CASE("Sign State Block", "[raisecurity]"){
+TEST_CASE("Sign State Block", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Verify Signature", "[raisecurity]"){
+TEST_CASE("Verify Signature", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Verify Hash", "[raisecurity]"){
+TEST_CASE("Verify Hash", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
-TEST_CASE("Sign Message", "[raisecurity]"){
+TEST_CASE("Sign Message", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
-
+#endif

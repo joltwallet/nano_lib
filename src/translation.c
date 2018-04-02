@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sodium.h"
+#include "freertos/FreeRTOS.h"
 
 #include "nano_lib.h"
 
@@ -31,7 +32,8 @@ nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
     crypto_generichash_state state;
 
     // sizeof includes the null character required
-    if (address_buf_len < (sizeof(CONFIG_NL_ADDRESS_PREFIX) + ADDRESS_DATA_LEN)){
+    printf("%s\n", CONFIG_NANO_LIB_ADDRESS_PREFIX);
+    if (address_buf_len < (sizeof(CONFIG_NANO_LIB_ADDRESS_PREFIX) + ADDRESS_DATA_LEN)){
         return E_INSUFFICIENT_BUF;
     }
 
@@ -40,8 +42,8 @@ nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
     crypto_generichash_final( &state, check, sizeof(check));
 
     // Copy in the prefix and shift pointer
-    strcpy(address_buf, CONFIG_NL_ADDRESS_PREFIX);
-    address_buf += strlen(CONFIG_NL_ADDRESS_PREFIX);
+    strcpy(address_buf, CONFIG_NANO_LIB_ADDRESS_PREFIX);
+    address_buf += strlen(CONFIG_NANO_LIB_ADDRESS_PREFIX);
 
     // Helper macro to create a virtual array of check and public_key variables
     #define accGetByte(x) (uint8_t)( \
