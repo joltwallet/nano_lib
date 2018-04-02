@@ -1,0 +1,8 @@
+menu "Easy_Input Config"
+    config NL_ADDRESS_PREFIX
+        string
+        prompt "prefix to apply for address data"
+        default xrb_
+        help
+            Typically "xrb_" or "nano_"
+endmenu
