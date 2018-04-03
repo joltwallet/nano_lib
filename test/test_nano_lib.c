@@ -9,10 +9,6 @@
 #include "nano_lib.h"
 #include "helpers.h"
 
-TEST_CASE("HEX_256 to BIN_256", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
-}
-
 TEST_CASE("Mneumonic to Index", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
@@ -24,7 +20,6 @@ TEST_CASE("Verify Mneumonic", "[nano_lib]"){
 TEST_CASE("Seed From Mneumonic", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
-
 
 TEST_CASE("String Case Helpers", "[nano_lib]"){
     char buf[10];
@@ -88,48 +83,12 @@ TEST_CASE("Public Key To Public Address", "[nano_lib]"){
 }
 
 #if 0
-TEST_CASE("Seed To Public Address", "[nano_lib]"){
-    /* Tests all the way from Seed to Public Address.
-     *
-     * Tests multiple indices.
-     *
-     * Test values were sourced from the official reference rai_node
-     *
-     * Todo:
-     * - [N] seed to private
-     * - [N] private to public
-     * - [N] public to address
-     * */
-    TEST_IGNORE_MESSAGE("Not Implemented");
-
-    hex256_t test_seed_hex;
-    uint32_t test_index;
-
-    hex256_t correct_private_key_hex;
-    hex256_t correct_public_key_hex;
-
-    char correct_address[ADDRESS_BUF_LEN];
-    char guess_address[ADDRESS_BUF_LEN];
-
-    nl_err_t res;
-    
-    /* Test 1 (Generic)*/
-    strcpy(test_seed_hex,
-            "1A620665F60713F867D7D7F77BA337360B303C8C3C94E84819C4E282B6EAC262");
+    /* Test 1 (Testing zero index)*/
+    test_seed_hex = \
+            "1A620665F60713F867D7D7F77BA337360B303C8C3C94E84819C4E282B6EAC262";
     test_index = 0;
-
-    res = nl_public_to_address(guess_address,
-            sizeof(guess_public_address),
-            test_public_key);
-    if(res != E_SUCCESS){
-        //todo: test fail
-    }
-    TEST_ASSERT_EQUAL_STRING(guess_address,
-            "xrb_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9");
-
-#if 0
     correct_private_key_hex = \
-            "xrb_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9";
+            "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290";
     correct_public_key_hex = \
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31";
     correct_public_address = \
@@ -148,9 +107,7 @@ TEST_CASE("Seed To Public Address", "[nano_lib]"){
             "5AC322F96BD7546B6F75AC620A5BF156E75A86151E64BD89DE2E5573ED00EE17";
     correct_public_address = \
             "xrb_1pp56dwpqotnffqqdd543bfz4oq9dc53c9m6qp6xwdkoghpi3uiqwnxanucp";
-
 #endif
-}
 
 TEST_CASE("Sign Digest", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
