@@ -7,7 +7,8 @@ typedef struct{} block_t;
 typedef enum nl_err_t{
     E_SUCCESS=0,
     E_FAILURE,
-    E_INSUFFICIENT_BUF
+    E_INSUFFICIENT_BUF,
+    E_INVALID_ADDRESS
 } nl_err_t;
 
 /* Generic Definitions */
@@ -56,6 +57,7 @@ static const uint8_t BASE32_TABLE[] = {
 
 /* Function Prototypes */
 nl_err_t nl_public_to_address(char address_buf[], uint8_t address_buf_len, const uint256_t public_key);
+nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]);
 
 //void raisecurity_sign_block(block_t *block);
 //void raisecurity_sign_digest(char[32]);
