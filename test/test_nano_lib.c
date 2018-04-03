@@ -42,6 +42,16 @@ TEST_CASE("String Case Helpers", "[nano_lib]"){
     TEST_ASSERT_EQUAL_STRING("nanO123$", buf);
 }
 
+TEST_CASE("Generate Seed (256-bit entropy)", "[nano_lib]"){
+    uint256_t seed_bin;
+    hex256_t seed_hex;
+    nl_generate_seed(seed_bin);
+    sodium_bin2hex(seed_hex, sizeof(seed_hex),
+            seed_bin, sizeof(seed_bin));
+    strupper(seed_hex);
+    printf("Generated Seed: %s\n", seed_hex);
+}
+
 TEST_CASE("Public Address To Public Key", "[nano_lib]"){
     uint256_t guess_public_key_bin;
     hex256_t guess_public_key_hex;
