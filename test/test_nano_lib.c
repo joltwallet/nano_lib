@@ -36,15 +36,16 @@ TEST_CASE("Public Key To Public Address", "[nano_lib]"){
     /* Test 1 */
     sodium_hex2bin(test_public_key_bin, sizeof(test_public_key_bin), \
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
-            BIN_256, NULL, NULL, NULL);
+            HEX_256, NULL, NULL, NULL);
     res = nl_public_to_address(guess_address,
             sizeof(guess_address),
             test_public_key_bin);
     if(res != E_SUCCESS){
-        //todo: test fail
+        TEST_FAIL_MESSAGE("nl_public_to_address returned an unsuccessful code");
     }
-    TEST_ASSERT_EQUAL_STRING(guess_address,
-            "xrb_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9");
+    TEST_ASSERT_EQUAL_STRING(
+            "xrb_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9",
+            guess_address);
 }
 
 #if 0

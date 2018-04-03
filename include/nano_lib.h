@@ -22,7 +22,7 @@ typedef enum nl_err_t{
 #define HEX_512 (2*BIN_512+1)
 
 /* Constant Buffer Lengths */
-#define ADDRESS_BUF_LEN 66
+#define ADDRESS_BUF_LEN 70
 #define BLOCK_BUF_LEN 512 // todo: optimize this number
 
 /* Useful Extra values */

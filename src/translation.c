@@ -26,23 +26,23 @@ nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
      *
      * Based on Roosmaa's Ledger S Nano Github
      */
-    uint8_t k, i, c;
+    uint8_t i, c;
     uint8_t check[CHECKSUM_LEN];
 
     crypto_generichash_state state;
 
     // sizeof includes the null character required
-    printf("%s\n", CONFIG_NANO_LIB_ADDRESS_PREFIX);
     if (address_buf_len < (sizeof(CONFIG_NANO_LIB_ADDRESS_PREFIX) + ADDRESS_DATA_LEN)){
         return E_INSUFFICIENT_BUF;
     }
 
+    // Compute the checksum
     crypto_generichash_init( &state, NULL, 0, CHECKSUM_LEN);
     crypto_generichash_update( &state, public_key, BIN_256);
     crypto_generichash_final( &state, check, sizeof(check));
 
     // Copy in the prefix and shift pointer
-    strcpy(address_buf, CONFIG_NANO_LIB_ADDRESS_PREFIX);
+    strlcpy(address_buf, CONFIG_NANO_LIB_ADDRESS_PREFIX, address_buf_len);
     address_buf += strlen(CONFIG_NANO_LIB_ADDRESS_PREFIX);
 
     // Helper macro to create a virtual array of check and public_key variables
@@ -51,7 +51,7 @@ nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
         ((x) - 5 < 32) ? public_key[32 - 1 - ((x) - 5)] : \
         0 \
     )
-    for (k = 0; k < ADDRESS_DATA_LEN; k++) {
+    for (int k = 0; k < ADDRESS_DATA_LEN; k++) {
         i = (k / 8) * 5;
         c = 0;
         switch (k % 8) {
