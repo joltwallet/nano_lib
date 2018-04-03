@@ -38,8 +38,10 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
 
     crypto_generichash_state state;
 
-    crypto_generichash_init(&state, NULL, 32, 32);
-    crypto_generichash_update(&state, seed_bin, 32);
-    crypto_generichash_update(&state, index_array, 4);
-    crypto_generichash_final(&state, priv_key, 32);
+    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
+    crypto_generichash_update(&state, seed_bin, BIN_256);
+    crypto_generichash_update(&state, index_array, sizeof(index_array));
+    crypto_generichash_final(&state, priv_key, BIN_256);
+
+    sodium_memzero(&state, sizeof(state));
 }
