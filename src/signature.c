@@ -7,6 +7,7 @@
 #include "sodium/private/curve25519_ref10.h"
 
 #include "nano_lib.h"
+#include "helpers.h"
 
 // Derives Nano Public Key from Private Key
 int nl_private_to_public(uint256_t pk, const uint256_t sk) {  
@@ -26,4 +27,19 @@ int nl_private_to_public(uint256_t pk, const uint256_t sk) {
     ge_p3_tobytes(pk, &A);
 
     return 0;
+}
+
+// Derive Nano Private Key From Seed and Index
+void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
+        const uint32_t index){
+    // Derives the private key from seed at index
+    unsigned char index_array[4] = {0};
+    int_to_char_array(index_array, index);
+
+    crypto_generichash_state state;
+
+    crypto_generichash_init(&state, NULL, 32, 32);
+    crypto_generichash_update(&state, seed_bin, 32);
+    crypto_generichash_update(&state, index_array, 4);
+    crypto_generichash_final(&state, priv_key, 32);
 }

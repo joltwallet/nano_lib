@@ -112,38 +112,41 @@ TEST_CASE("Private Key To Public Key", "[nano_lib]"){
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
             guess_public_key_hex);
 }
-#if 0
-    /* Test 1 (Testing zero index)*/
-    test_seed_hex = \
-            "1A620665F60713F867D7D7F77BA337360B303C8C3C94E84819C4E282B6EAC262";
-    test_index = 0;
-    correct_private_key_hex = \
-            "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290";
-    correct_public_key_hex = \
-            "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31";
-    correct_public_address = \
-            "xrb_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9";
 
+TEST_CASE("Seed To Private Key", "[nano_lib]"){
+    uint256_t test_seed_bin;
+    uint256_t guess_private_key_bin;
+    hex256_t guess_private_key_hex;
 
+    sodium_hex2bin(test_seed_bin, sizeof(test_seed_bin), \
+            "1A620665F60713F867D7D7F77BA337360B303C8C3C94E84819C4E282B6EAC262",
+            HEX_256, NULL, NULL, NULL);
 
+    /* Test Index 0 */
+    nl_seed_to_private(guess_private_key_bin, test_seed_bin, 0);
+    sodium_bin2hex(guess_private_key_hex, sizeof(guess_private_key_hex),
+            guess_private_key_bin, sizeof(guess_private_key_bin));
+    strupper(guess_private_key_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290",
+            guess_private_key_hex);
 
-    /* Test 2 (Testing non-zero index)*/
-    test_seed_hex = \
-            "1A620665F60713F867D7D7F77BA337360B303C8C3C94E84819C4E282B6EAC262";
-    test_index = 1;
-    correct_private_key_hex = \
-            "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E";
-    correct_public_key_hex = \
-            "5AC322F96BD7546B6F75AC620A5BF156E75A86151E64BD89DE2E5573ED00EE17";
-    correct_public_address = \
-            "xrb_1pp56dwpqotnffqqdd543bfz4oq9dc53c9m6qp6xwdkoghpi3uiqwnxanucp";
-#endif
+    /* Test Index 1 */
+    nl_seed_to_private(guess_private_key_bin, test_seed_bin, 1);
+    sodium_bin2hex(guess_private_key_hex, sizeof(guess_private_key_hex),
+            guess_private_key_bin, sizeof(guess_private_key_bin));
+    strupper(guess_private_key_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E",
+            guess_private_key_hex);
+}
+
 #if 0
 TEST_CASE("Sign Digest", "[nano_lib]"){
-    meow();
     //TEST_IGNORE_MESSAGE("Not Implemented");
 }
 #endif
+
 #if 0
 TEST_CASE("Sign Send Block", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");

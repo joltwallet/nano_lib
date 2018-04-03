@@ -60,6 +60,8 @@ nl_err_t nl_public_to_address(char address_buf[], uint8_t address_buf_len, const
 nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]);
 
 int nl_private_to_public(uint256_t pk, const uint256_t sk);
+void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
+        const uint32_t index);
 
 //void raisecurity_sign_block(block_t *block);
 //void raisecurity_sign_digest(char[32]);
