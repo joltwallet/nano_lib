@@ -25,19 +25,19 @@ TEST_CASE("String Case Helpers", "[nano_lib]"){
     char buf[10];
     const char test_string[] = "NanO123$";
 
-    strcpy(buf, test_string);
+    strlcpy(buf, test_string, sizeof(buf));
     strupper(buf);
     TEST_ASSERT_EQUAL_STRING("NANO123$", buf);
 
-    strcpy(buf, test_string);
+    strlcpy(buf, test_string, sizeof(buf));
     strnupper(buf, 2);
     TEST_ASSERT_EQUAL_STRING("NAnO123$", buf);
 
-    strcpy(buf, test_string);
+    strlcpy(buf, test_string, sizeof(buf));
     strlower(buf);
     TEST_ASSERT_EQUAL_STRING("nano123$", buf);
 
-    strcpy(buf, test_string);
+    strlcpy(buf, test_string, sizeof(buf));
     strnlower(buf, 2);
     TEST_ASSERT_EQUAL_STRING("nanO123$", buf);
 }
