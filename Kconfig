@@ -15,4 +15,12 @@ menu "Nano ESP32 Library Config"
         help
             Typically "xrb_" or "nano_"
 
+    config NANO_LIB_DERIVATION_PATH
+        int
+        prompt ""
+        depends on NANO_LIB_ENABLE
+        default 165
+        help
+            BIP39/44 index to use
+
 endmenu
