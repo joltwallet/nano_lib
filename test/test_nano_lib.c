@@ -141,11 +141,36 @@ TEST_CASE("Seed To Private Key", "[nano_lib]"){
             guess_private_key_hex);
 }
 
-#if 0
-TEST_CASE("Sign Digest", "[nano_lib]"){
-    //TEST_IGNORE_MESSAGE("Not Implemented");
+TEST_CASE("Sign Message", "[nano_lib]"){
+    // todo: verify the test case
+    int res;
+    uint512_t guess_sig_bin;
+    hex512_t guess_sig_hex;
+    uint256_t test_private_key_bin;
+    uint256_t test_public_key_bin;
+    const char test_message[] = "Block-Lattice";
+
+    sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin), \
+            "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(test_public_key_bin, sizeof(test_private_key_bin), \
+            "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
+            HEX_256, NULL, NULL, NULL);
+
+    res = nl_sign_detached(guess_sig_bin,
+            (unsigned char *) test_message, strlen(test_message), 
+            test_private_key_bin, test_public_key_bin);
+    if(res != 0){
+        TEST_FAIL_MESSAGE("nl_sign_detached returned an unsuccessful code");
+    }
+    sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
+            guess_sig_bin, sizeof(guess_sig_bin));
+    strupper(guess_sig_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "6B0FCF86D2B04CB1919F25C76AE45C411D59F6F10768918FE6DC8F13DBB81BD2"
+            "94AF6057B635105DB8F5EA3FC612256B12EDABB548379076F4A07E8ACAAF8F05",
+            guess_sig_hex);
 }
-#endif
 
 #if 0
 TEST_CASE("Sign Send Block", "[nano_lib]"){

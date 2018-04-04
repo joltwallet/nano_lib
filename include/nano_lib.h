@@ -1,6 +1,8 @@
 #ifndef __NANO_LIB_H__
 #define __NANO_LIB_H__
 
+#include "mbedtls/bignum.h"
+
 /* Structs (and Struct Prototypes)*/
 typedef struct{} block_t;
 
@@ -39,6 +41,21 @@ typedef char hex256_t[HEX_256];
 typedef unsigned char uint512_t[BIN_512];
 typedef char hex512_t[HEX_512];
 
+typedef enum nl_block_type_t{
+    STATE, OPEN, CHANGE, SEND, RECEIVE
+} nl_block_type_t;
+
+typedef struct nl_block_t{
+    nl_block_type_t type;
+    uint256_t account;
+    uint256_t previous;
+    uint256_t representative;
+    uint64_t work;
+    uint512_t signature;
+    uint256_t link;
+    mbedtls_mpi balance;
+} nl_block_t;
+
 /* Lookup Tables */
 static const char BASE32_ALPHABET[] = {
         '1', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
@@ -62,6 +79,9 @@ nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]);
 int nl_private_to_public(uint256_t pk, const uint256_t sk);
 void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
         const uint32_t index);
+int nl_sign_detached(uint512_t sig,
+        const unsigned char m[], unsigned int mlen,
+        const uint256_t sk, const uint256_t pk);
 
 //void raisecurity_sign_block(block_t *block);
 //void raisecurity_sign_digest(char[32]);

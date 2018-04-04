@@ -45,3 +45,53 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
 
     sodium_memzero(&state, sizeof(state));
 }
+
+// Sign some message m
+int nl_sign_detached(uint512_t sig,
+        const unsigned char m[], unsigned int mlen,
+        const uint256_t sk, const uint256_t pk){
+	/* sig - Returned signature
+     * siglen_p - Returned signature length (can be NULL if user doesn't care)
+     * m - message to sign
+     * mlen - length of message in bytes
+     * sk - Secret Key
+     * pk - Public Key
+	*/
+    crypto_generichash_blake2b_state hs;
+    unsigned char az[64];
+    unsigned char nonce[64];
+    unsigned char hram[64];
+    ge_p3 R;
+
+    // Generate 64 bytes (512 bits) from private key into az
+    crypto_generichash_blake2b_init(&hs, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&hs, sk, 32);
+    crypto_generichash_blake2b_final(&hs, az, 64);
+
+    az[0] &= 248;
+    az[31] &= 63;
+    az[31] |= 64;
+
+    crypto_generichash_blake2b_init(&hs, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&hs, az + 32, 32);
+    crypto_generichash_blake2b_update(&hs, m, mlen);
+    crypto_generichash_blake2b_final(&hs, nonce, 64);
+
+    memmove(sig + 32, pk, 32); // set upper 32 bits of sig
+
+    sc_reduce(nonce);
+    ge_scalarmult_base(&R, nonce);
+    ge_p3_tobytes(sig, &R);
+
+    crypto_generichash_blake2b_init(&hs, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&hs, sig, 64);
+    crypto_generichash_blake2b_update(&hs, m, mlen);
+    crypto_generichash_blake2b_final(&hs, hram, 64);
+
+    sc_reduce(hram);
+    sc_muladd(sig + 32, hram, az, nonce);
+
+    sodium_memzero(az, sizeof az);
+
+    return 0;
+}
