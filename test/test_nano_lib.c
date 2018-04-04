@@ -197,18 +197,14 @@ TEST_CASE("Sign Send Block", "[nano_lib]"){
             "f0f4d56c95d3e7e5", HEX_64, NULL, NULL, NULL);
 
     // Compute final account balance
-    mbedtls_mpi original_amount;
-    mbedtls_mpi_init(&original_amount);
-    mbedtls_mpi_read_string(&original_amount, 10, "60051032083097114097032066");
-
     mbedtls_mpi transaction_amount;
     mbedtls_mpi_init(&transaction_amount);
     mbedtls_mpi_read_string(&transaction_amount, 10, "87593489348637673");
 
     // Original Amount
-    //mbedtls_mpi_read_string(&(block.balance), 10, "60051032083097114097032066");
+    mbedtls_mpi_read_string(&(block.balance), 10, "60051032083097114097032066");
     // Subtract Transaction Amount from the Original Amount
-    mbedtls_mpi_sub_mpi(&(block.balance), &original_amount, &transaction_amount);
+    mbedtls_mpi_sub_mpi(&(block.balance), &(block.balance), &transaction_amount);
 
     res = nl_sign_block(&block, test_private_key_bin);
 
@@ -219,21 +215,11 @@ TEST_CASE("Sign Send Block", "[nano_lib]"){
             "A9807C7103BFD6D1A19E128F0D0318FAEF042E6A4497F7D53F17558043DB0225"
             "53B8B5259C0C317E771437A1790D613678F8EA954BE0B0157F16611C8195ED0B",
             guess_sig_hex);
-    mbedtls_mpi_free(&original_amount);
     mbedtls_mpi_free(&transaction_amount);
     nl_block_free(&block);
 
     // Hash of this send block:
     // "hash": "6447171713541D387BAB4161E6BA40A88F41140218395DCCA0230BC29827717A"
-
-
-
-    /* Test 1 */
-    // Todo: Convert this json representation into a struc representation
-    /* {
-     *         "block": "{    "type": "send",    "previous": "00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C",    "destination": "xrb_1cwswatjifmjnmtu5toepkwca64m7qtuukizyjxsghujtpdr9466wjmn89d8",    "balance": "000000000031AC4CF7AC832410B9E799",    "work": "f0f4d56c95d3e7e5",    "signature": "A9807C7103BFD6D1A19E128F0D0318FAEF042E6A4497F7D53F17558043DB022553B8B5259C0C317E771437A1790D613678F8EA954BE0B0157F16611C8195ED0B"}"
-     *         }
-     */
 }
 
 TEST_CASE("Sign Receive Block", "[nano_lib]"){
