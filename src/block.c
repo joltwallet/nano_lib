@@ -42,14 +42,14 @@ static nl_err_t sign_open(nl_block_t *block, const uint256_t private_key){
     uint256_t digest;
     crypto_generichash_state state;
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, block->link, BIN_256);
-    crypto_generichash_update(&state, block->representative, BIN_256);
-    crypto_generichash_update(&state, block->account, BIN_256);
-    crypto_generichash_final(&state, digest, BIN_256);
+    crypto_generichash_init(&state, NULL, sizeof(digest), sizeof(digest));
+    crypto_generichash_update(&state, block->link, sizeof(block->link));
+    crypto_generichash_update(&state, block->representative, sizeof(block->representative));
+    crypto_generichash_update(&state, block->account, sizeof(block->account));
+    crypto_generichash_final(&state, digest, sizeof(digest));
 
     nl_sign_detached(block->signature,
-            digest, BIN_256,
+            digest, sizeof(digest),
             private_key, block->account);
     return E_SUCCESS;
 }
@@ -63,13 +63,13 @@ static nl_err_t sign_change(nl_block_t *block, const uint256_t private_key){
     uint256_t digest;
     crypto_generichash_state state;
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, block->previous, BIN_256);
-    crypto_generichash_update(&state, block->representative, BIN_256);
-    crypto_generichash_final(&state, digest, BIN_256);
+    crypto_generichash_init(&state, NULL, sizeof(digest), sizeof(digest));
+    crypto_generichash_update(&state, block->previous, sizeof(block->previous));
+    crypto_generichash_update(&state, block->representative, sizeof(block->representative));
+    crypto_generichash_final(&state, digest, sizeof(digest));
 
     nl_sign_detached(block->signature,
-            digest, BIN_256,
+            digest, sizeof(digest),
             private_key, block->account);
     return E_SUCCESS;
 }
@@ -78,13 +78,13 @@ static nl_err_t sign_receive(nl_block_t *block, const uint256_t private_key){
     uint256_t digest;
     crypto_generichash_state state;
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, block->previous, BIN_256);
-    crypto_generichash_update(&state, block->link, BIN_256);
-    crypto_generichash_final(&state, digest, BIN_256);
+    crypto_generichash_init(&state, NULL, sizeof(digest), sizeof(digest));
+    crypto_generichash_update(&state, block->previous, sizeof(block->previous));
+    crypto_generichash_update(&state, block->link, sizeof(block->link));
+    crypto_generichash_final(&state, digest, sizeof(digest));
 
     nl_sign_detached(block->signature,
-            digest, BIN_256,
+            digest, sizeof(digest),
             private_key, block->account);
     return E_SUCCESS;
 }
@@ -96,14 +96,14 @@ static nl_err_t sign_send(nl_block_t *block, const uint256_t private_key){
 
     mbedtls_mpi_write_binary(&(block->balance), balance, sizeof(balance));
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, block->previous, BIN_256);
-    crypto_generichash_update(&state, block->link, BIN_256);
+    crypto_generichash_init(&state, NULL, sizeof(digest), sizeof(digest));
+    crypto_generichash_update(&state, block->previous, sizeof(block->previous));
+    crypto_generichash_update(&state, block->link, sizeof(block->link));
     crypto_generichash_update(&state, balance, sizeof(balance));
-    crypto_generichash_final(&state, digest, BIN_256);
+    crypto_generichash_final(&state, digest, sizeof(digest));
 
     nl_sign_detached(block->signature,
-            digest, BIN_256,
+            digest, sizeof(digest),
             private_key, block->account);
     return E_SUCCESS;
 }
