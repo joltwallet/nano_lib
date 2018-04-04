@@ -136,7 +136,7 @@ TEST_CASE("Public Key To Public Address", "[nano_lib]"){
 }
 
 TEST_CASE("Private Key To Public Key", "[nano_lib]"){
-	int res;
+	nl_err_t res;
     uint256_t test_private_key_bin;
     uint256_t guess_public_key_bin;
     hex256_t guess_public_key_hex;

@@ -13,7 +13,7 @@
 int nl_private_to_public(uint256_t pk, const uint256_t sk) {  
     ge_p3 A;
     
-    unsigned char hash[BIN_512];
+    uint512_t hash;
     crypto_generichash_blake2b_state state;
     crypto_generichash_blake2b_init(&state, NULL, 0, BIN_512);
     crypto_generichash_blake2b_update(&state, sk, BIN_256);
