@@ -225,36 +225,52 @@ TEST_CASE("Sign Receive Block", "[nano_lib]"){
      */
 }
 
+#endif
 TEST_CASE("Sign Change Block", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
-    char test_private_key_hex[HEX_256];
-    char block_buf[BLOCK_BUF_LEN];
-    char test_work_hex[HEX_64];
-    char correct_signature[HEX_512];
-    char test_rep[ADDRESS_BUF_LEN];
+    // TEST_IGNORE_MESSAGE("Not Implemented");
+    nl_err_t res;
+    hex512_t guess_sig_hex;
+    uint256_t test_private_key_bin;
+    nl_block_t block;
 
     /* Test 1 */
-    test_private_key_hex = \
-            "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E";
-    test_work_hex = "3a74e84a07e6837c";
-    correct_signature = "93E243440E64E44C7D33359F15B18EA3FC5E5A5B3EFB3996F1B05D"
-            "436AF200E91C6DBC16E0C62142776A0FAE393C85F43FAD16C5227225EA87E1FD08"
-            "A46B4605";
+    sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin),
+            "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E",
+            HEX_256, NULL, NULL, NULL);
 
-    // Todo: Convert this json representation into a struc representation
-    /* {
-     *     "hash": "EFFACC9470702D3280FFDC22D1FA2922CB6BB85C86A4CEAAD6E68B63F607F3EC",
-     *         "block": "{\n    \"type\": \"change\",\n    \"previous\": \"0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF\",\n    \"representative\": \"xrb_3dmtrrws3pocycmbqwawk6xs7446qxa36fcncush4s1pejk16ksbmakis78m\",\n    \"work\": \"3a74e84a07e6837c\",\n    \"signature\": \"93E243440E64E44C7D33359F15B18EA3FC5E5A5B3EFB3996F1B05D436AF200E91C6DBC16E0C62142776A0FAE393C85F43FAD16C5227225EA87E1FD08A46B4605\"\n}\n"
-     *         }
-     */
+    res = nl_block_init(&block);
+    block.type = CHANGE;
+    res = nl_address_to_public(block.representative,
+            "xrb_3dmtrrws3pocycmbqwawk6xs7446qxa36fcncush4s1pejk16ksbmakis78m");
+    sodium_hex2bin(block.account, sizeof(block.account),
+            "5AC322F96BD7546B6F75AC620A5BF156E75A86151E64BD89DE2E5573ED00EE17",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(block.previous, sizeof(block.previous),
+            "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
+            HEX_256, NULL, NULL, NULL);
+
+    sodium_hex2bin(block.work, sizeof(block.work), "3a74e84a07e6837c", HEX_64,
+            NULL, NULL, NULL);
+
+    res = nl_sign_block(&block, test_private_key_bin);
+
+    sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
+            block.signature, sizeof(block.signature));
+    strupper(guess_sig_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "93E243440E64E44C7D33359F15B18EA3FC5E5A5B3EFB3996F1B05D436AF200E9"
+            "1C6DBC16E0C62142776A0FAE393C85F43FAD16C5227225EA87E1FD08A46B4605",
+            guess_sig_hex);
+    res = nl_block_free(&block);
+
+    // Hash of this send block:
+    // "hash": "EFFACC9470702D3280FFDC22D1FA2922CB6BB85C86A4CEAAD6E68B63F607F3EC",
 }
-#endif
 
 TEST_CASE("Sign Open Block", "[nano_lib]"){
     nl_err_t res;
     hex512_t guess_sig_hex;
     uint256_t test_private_key_bin;
-    uint256_t test_public_key_bin;
     nl_block_t block;
 
     /* Test 1 */
@@ -266,7 +282,7 @@ TEST_CASE("Sign Open Block", "[nano_lib]"){
     block.type = OPEN;
     res = nl_address_to_public(block.representative,
             "xrb_1cwswatjifmjnmtu5toepkwca64m7qtuukizyjxsghujtpdr9466wjmn89d8");
-    sodium_hex2bin(block.account, sizeof(test_public_key_bin),
+    sodium_hex2bin(block.account, sizeof(block.account),
             "5AC322F96BD7546B6F75AC620A5BF156E75A86151E64BD89DE2E5573ED00EE17",
             HEX_256, NULL, NULL, NULL);
     sodium_hex2bin(block.work, sizeof(block.work), "d2183f1b5b08a7a8", HEX_64,

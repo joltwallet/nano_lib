@@ -54,6 +54,26 @@ static nl_err_t sign_open(nl_block_t *block, const uint256_t private_key){
     return E_SUCCESS;
 }
 
+static nl_err_t sign_change(nl_block_t *block, const uint256_t private_key){
+    /*
+     *
+     * link must contain the hash of the source block
+     *
+     */
+    uint256_t digest;
+    crypto_generichash_state state;
+
+    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
+    crypto_generichash_update(&state, block->previous, BIN_256);
+    crypto_generichash_update(&state, block->representative, BIN_256);
+    crypto_generichash_final(&state, digest, BIN_256);
+
+    nl_sign_detached(block->signature,
+            digest, BIN_256,
+            private_key, block->account);
+    return E_SUCCESS;
+}
+
 #if 0
 static nl_err_t sign_change(nl_block_t *block,
         const uint256_t private_key,
@@ -89,7 +109,7 @@ nl_err_t nl_sign_block(nl_block_t *block,
         case OPEN:
             return sign_open(block, private_key);
         case CHANGE:
-            return E_NOT_IMPLEMENTED;
+            return sign_change(block, private_key);
         case SEND:
             return E_NOT_IMPLEMENTED;
         case RECEIVE:
