@@ -57,12 +57,11 @@ TEST_CASE("Public Address To Public Key", "[nano_lib]"){
     hex256_t guess_public_key_hex;
     nl_err_t res;
 
-    /* Test 1 */
+    /* Test 1 - Standard Case (xrb_ prefix)*/
     res = nl_address_to_public(guess_public_key_bin,
             "xrb_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9");
-    if(res != E_SUCCESS){
-        TEST_FAIL_MESSAGE("nl_address_to_public returned an unsuccessful code");
-    }
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+        "nl_address_to_public returned an unsuccessful code");
 
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
@@ -70,6 +69,37 @@ TEST_CASE("Public Address To Public Key", "[nano_lib]"){
     TEST_ASSERT_EQUAL_STRING(
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
             guess_public_key_hex);
+
+    /* Test 2 - No Prefix*/
+    res = nl_address_to_public(guess_public_key_bin,
+            "1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+        "nl_address_to_public returned an unsuccessful code");
+    sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
+            guess_public_key_bin, sizeof(guess_public_key_bin));
+    strupper(guess_public_key_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
+            guess_public_key_hex);
+
+    /* Test 3 - nano_ prefix*/
+    res = nl_address_to_public(guess_public_key_bin,
+            "nAnO_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+        "nl_address_to_public returned an unsuccessful code");
+    sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
+            guess_public_key_bin, sizeof(guess_public_key_bin));
+    strupper(guess_public_key_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
+            guess_public_key_hex);
+
+    /* Test 4 - Incomplete address*/
+    res = nl_address_to_public(guess_public_key_bin,
+            "nAnO_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_INVALID_ADDRESS, res,
+        "nl_address_to_public didn't return E_INVALID_ADDRESS for a too short "
+        "address.");
 }
 
 TEST_CASE("Public Key To Public Address", "[nano_lib]"){

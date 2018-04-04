@@ -110,7 +110,7 @@ nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
         (address[3] == 'o' || address[3] == 'O') &&
         (address[4] == '-' || address[4] == '_')) {
         if (size != ADDRESS_DATA_LEN + 5) {
-            return 1;
+            return E_INVALID_ADDRESS;
         }
         size -= 5;
         address += 5;
@@ -119,7 +119,7 @@ nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
                (address[2] == 'b' || address[2] == 'B') &&
                (address[3] == '-' || address[3] == '_')) {
         if (size != ADDRESS_DATA_LEN + 4) {
-            return 1;
+            return E_INVALID_ADDRESS;
         }
         size -= 4;
         address += 4;
@@ -183,13 +183,13 @@ nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
 
     // Verify the checksum of the address
     crypto_generichash_state state;
-    crypto_generichash_init(&state, NULL, 0, 5);
-    crypto_generichash_update(&state, pub_key, 32);
-    crypto_generichash_final(&state, check, 5);
+    crypto_generichash_init(&state, NULL, 0, CHECKSUM_LEN);
+    crypto_generichash_update(&state, pub_key, BIN_256);
+    crypto_generichash_final(&state, check, CHECKSUM_LEN);
 
     for (i = 0; i < sizeof(check); i++) {
         if (check[i] != checkInp[i]) {
-            return i;
+            return E_INVALID_ADDRESS;
         }
     }
 
