@@ -89,20 +89,31 @@ static nl_err_t sign_receive(nl_block_t *block, const uint256_t private_key){
     return E_SUCCESS;
 }
 
-#if 0
-static nl_err_t sign_send(nl_block_t *block,
-        const uint256_t private_key){
+static nl_err_t sign_send(nl_block_t *block, const uint256_t private_key){
+    uint256_t digest;
+    uint128_t balance;
+    crypto_generichash_state state;
 
+    mbedtls_mpi_write_binary(&(block->balance), balance, sizeof(balance));
+
+    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
+    crypto_generichash_update(&state, block->previous, BIN_256);
+    crypto_generichash_update(&state, block->link, BIN_256);
+    crypto_generichash_update(&state, balance, sizeof(balance));
+    crypto_generichash_final(&state, digest, BIN_256);
+
+    nl_sign_detached(block->signature,
+            digest, BIN_256,
+            private_key, block->account);
+    return E_SUCCESS;
 }
-#endif
-
 
 nl_err_t nl_sign_block(nl_block_t *block,
         const uint256_t private_key){
     // Todo; test private key
     switch(block->type){
         case UNDEFINED:
-            return E_NOT_IMPLEMENTED;
+            return E_UNDEFINED_BLOCK_TYPE;
         case STATE:
             return E_NOT_IMPLEMENTED;
         case OPEN:
@@ -110,9 +121,11 @@ nl_err_t nl_sign_block(nl_block_t *block,
         case CHANGE:
             return sign_change(block, private_key);
         case SEND:
-            return E_NOT_IMPLEMENTED;
+            return sign_send(block, private_key);
         case RECEIVE:
             return sign_receive(block, private_key);
+        default:
+            return E_UNDEFINED_BLOCK_TYPE;
     }
     return E_END_OF_FUNCTION;
 }

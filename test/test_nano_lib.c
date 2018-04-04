@@ -172,37 +172,69 @@ TEST_CASE("Sign Message", "[nano_lib]"){
             guess_sig_hex);
 }
 
-#if 0
 TEST_CASE("Sign Send Block", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
-    char test_private_key_hex[HEX_256];
-    char block_buf[BLOCK_BUF_LEN];
-    char test_work_hex[HEX_64];
-    char correct_signature[HEX_512];
+    nl_err_t res;
+    hex512_t guess_sig_hex;
+    uint256_t test_private_key_bin;
+    nl_block_t block;
 
     /* Test 1 */
-    test_private_key_hex = \
-            "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E";
-    test_work_hex = "f0f4d56c95d3e7e5";
-    correct_signature = "A9807C7103BFD6D1A19E128F0D0318FAEF042E6A4497F7D53F1755"
-            "8043DB022553B8B5259C0C317E771437A1790D613678F8EA954BE0B0157F16611C"
-            "8195ED0B";
+    sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin),
+            "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E",
+            HEX_256, NULL, NULL, NULL);
+
+    res = nl_block_init(&block);
+    block.type = SEND;
+    sodium_hex2bin(block.account, sizeof(block.account),
+            "5AC322F96BD7546B6F75AC620A5BF156E75A86151E64BD89DE2E5573ED00EE17",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(block.previous, sizeof(block.previous),
+            "00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C",
+            HEX_256, NULL, NULL, NULL);
+    res = nl_address_to_public(block.link,
+            "xrb_1cwswatjifmjnmtu5toepkwca64m7qtuukizyjxsghujtpdr9466wjmn89d8");
+    sodium_hex2bin(block.work, sizeof(block.work),
+            "f0f4d56c95d3e7e5", HEX_64, NULL, NULL, NULL);
+
+    // Compute final account balance
+    mbedtls_mpi original_amount;
+    mbedtls_mpi_init(&original_amount);
+    mbedtls_mpi_read_string(&original_amount, 10, "60051032083097114097032066");
+
+    mbedtls_mpi transaction_amount;
+    mbedtls_mpi_init(&transaction_amount);
+    mbedtls_mpi_read_string(&transaction_amount, 10, "87593489348637673");
+
+    // Original Amount
+    //mbedtls_mpi_read_string(&(block.balance), 10, "60051032083097114097032066");
+    // Subtract Transaction Amount from the Original Amount
+    mbedtls_mpi_sub_mpi(&(block.balance), &original_amount, &transaction_amount);
+
+    res = nl_sign_block(&block, test_private_key_bin);
+
+    sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
+            block.signature, sizeof(block.signature));
+    strupper(guess_sig_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "A9807C7103BFD6D1A19E128F0D0318FAEF042E6A4497F7D53F17558043DB0225"
+            "53B8B5259C0C317E771437A1790D613678F8EA954BE0B0157F16611C8195ED0B",
+            guess_sig_hex);
+    mbedtls_mpi_free(&original_amount);
+    mbedtls_mpi_free(&transaction_amount);
+    nl_block_free(&block);
+
+    // Hash of this send block:
+    // "hash": "6447171713541D387BAB4161E6BA40A88F41140218395DCCA0230BC29827717A"
+
+
+
+    /* Test 1 */
     // Todo: Convert this json representation into a struc representation
     /* {
-     *     "hash": "6447171713541D387BAB4161E6BA40A88F41140218395DCCA0230BC29827717A",
      *         "block": "{    "type": "send",    "previous": "00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C00BAB10C",    "destination": "xrb_1cwswatjifmjnmtu5toepkwca64m7qtuukizyjxsghujtpdr9466wjmn89d8",    "balance": "000000000031AC4CF7AC832410B9E799",    "work": "f0f4d56c95d3e7e5",    "signature": "A9807C7103BFD6D1A19E128F0D0318FAEF042E6A4497F7D53F17558043DB022553B8B5259C0C317E771437A1790D613678F8EA954BE0B0157F16611C8195ED0B"}"
      *         }
      */
-    //test_seed_hex = "1A620665F60713F867D7D7F77BA337360B303C8C3C94E84819C4E282B6EAC262";
-    //test_index = 1;
-    //correct_private_key_hex = "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E";
-    correct_public_key_hex = \
-            "5AC322F96BD7546B6F75AC620A5BF156E75A86151E64BD89DE2E5573ED00EE17";
-    correct_public_address = \
-            "xrb_1pp56dwpqotnffqqdd543bfz4oq9dc53c9m6qp6xwdkoghpi3uiqwnxanucp";
-
 }
-#endif
 
 TEST_CASE("Sign Receive Block", "[nano_lib]"){
     nl_err_t res;

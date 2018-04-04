@@ -12,7 +12,8 @@ typedef enum nl_err_t{
     E_INSUFFICIENT_BUF,
     E_INVALID_ADDRESS,
     E_END_OF_FUNCTION,
-    E_NOT_IMPLEMENTED
+    E_NOT_IMPLEMENTED,
+    E_UNDEFINED_BLOCK_TYPE
 } nl_err_t;
 
 /* Generic Definitions */
