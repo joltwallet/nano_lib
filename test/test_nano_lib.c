@@ -50,6 +50,8 @@ TEST_CASE("Generate Seed (256-bit entropy)", "[nano_lib]"){
             seed_bin, sizeof(seed_bin));
     strupper(seed_hex);
     printf("Generated Seed: %s\n", seed_hex);
+    sodium_memzero(seed_bin, sizeof(seed_bin));
+    sodium_memzero(seed_hex, sizeof(seed_hex));
 }
 
 TEST_CASE("Public Address To Public Key", "[nano_lib]"){
