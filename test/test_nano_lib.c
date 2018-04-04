@@ -287,12 +287,6 @@ TEST_CASE("Sign Open Block", "[nano_lib]"){
     res = nl_block_free(&block);
     // Hash of this open block:
     // "70B6BD8B225F62F59EF09D11287DEE95CC07DFA42EADBADA15D8DD4C6AD7C369",
-    // Todo: Convert this json representation into a struc representation
-    /* {
-     *         "block": "{    "type": "open",    "source": "BA5920AF3B105AB472DDD31100000F3952BA1BACCC4212874219064538BADFAA",    "representative": "xrb_1cwswatjifmjnmtu5toepkwca64m7qtuukizyjxsghujtpdr9466wjmn89d8",    "account": "xrb_1pp56dwpqotnffqqdd543bfz4oq9dc53c9m6qp6xwdkoghpi3uiqwnxanucp",    "work": "d2183f1b5b08a7a8",    "signature":
-     *         "12776A6DBF21AD285EAA187EC9E7BDF622C18AAFE765100CA62FCD4C7800FB914C8C43872CF0903B48FB81E5D29E3E45565AB2A6D9F26746D2A0E310F107E903"}"
-     *         }
-     */
 }
 
 TEST_CASE("Sign State Block", "[nano_lib]"){
