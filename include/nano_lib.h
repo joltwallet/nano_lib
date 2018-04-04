@@ -10,7 +10,9 @@ typedef enum nl_err_t{
     E_SUCCESS=0,
     E_FAILURE,
     E_INSUFFICIENT_BUF,
-    E_INVALID_ADDRESS
+    E_INVALID_ADDRESS,
+    E_END_OF_FUNCTION,
+    E_NOT_IMPLEMENTED
 } nl_err_t;
 
 /* Generic Definitions */
@@ -32,6 +34,10 @@ typedef enum nl_err_t{
 #define BURN_ADDRESS "xrb_1111111111111111111111111111111111111111111111111111hifc8npp"
 
 /* typedefs */
+// Todo: make bin/uint uniform
+typedef unsigned char bin64_t[BIN_64];
+typedef char hex64_t[HEX_64];
+
 typedef unsigned char uint128_t[BIN_128];
 typedef char hex128_t[HEX_128];
 
@@ -42,7 +48,7 @@ typedef unsigned char uint512_t[BIN_512];
 typedef char hex512_t[HEX_512];
 
 typedef enum nl_block_type_t{
-    STATE, OPEN, CHANGE, SEND, RECEIVE
+    UNDEFINED=0, STATE, OPEN, CHANGE, SEND, RECEIVE
 } nl_block_type_t;
 
 typedef struct nl_block_t{
@@ -50,7 +56,7 @@ typedef struct nl_block_t{
     uint256_t account;
     uint256_t previous;
     uint256_t representative;
-    uint64_t work;
+    bin64_t work;
     uint512_t signature;
     uint256_t link;
     mbedtls_mpi balance;
@@ -76,6 +82,9 @@ static const uint8_t BASE32_TABLE[] = {
 nl_err_t nl_public_to_address(char address_buf[], uint8_t address_buf_len, const uint256_t public_key);
 nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]);
 
+nl_err_t nl_block_init(nl_block_t *block);
+nl_err_t nl_block_free(nl_block_t *block);
+
 int nl_private_to_public(uint256_t pk, const uint256_t sk);
 void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
         const uint32_t index);
@@ -83,6 +92,6 @@ int nl_sign_detached(uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t sk, const uint256_t pk);
 
-//void raisecurity_sign_block(block_t *block);
-//void raisecurity_sign_digest(char[32]);
+nl_err_t nl_sign_block(nl_block_t *block, const uint256_t private_key);
+
 #endif

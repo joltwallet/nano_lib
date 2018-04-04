@@ -153,7 +153,7 @@ TEST_CASE("Sign Message", "[nano_lib]"){
     sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin), \
             "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290",
             HEX_256, NULL, NULL, NULL);
-    sodium_hex2bin(test_public_key_bin, sizeof(test_private_key_bin), \
+    sodium_hex2bin(test_public_key_bin, sizeof(test_public_key_bin), \
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
             HEX_256, NULL, NULL, NULL);
 
@@ -248,27 +248,47 @@ TEST_CASE("Sign Change Block", "[nano_lib]"){
      *         }
      */
 }
+#endif
 
 TEST_CASE("Sign Open Block", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
-
-    char test_private_key_hex[HEX_256];
-    char block_buf[BLOCK_BUF_LEN];
-    char test_work_hex[HEX_64];
-    char correct_signature[HEX_512];
-    char test_rep[ADDRESS_BUF_LEN];
+    nl_err_t res;
+    hex512_t guess_sig_hex;
+    uint256_t test_private_key_bin;
+    uint256_t test_public_key_bin;
+    nl_block_t block;
 
     /* Test 1 */
-    test_private_key_hex = \
-            "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E";
-    test_work_hex = "d2183f1b5b08a7a8";
-    correct_signature = "12776A6DBF21AD285EAA187EC9E7BDF622C18AAFE765100CA62FCD"
-            "4C7800FB914C8C43872CF0903B48FB81E5D29E3E45565AB2A6D9F26746D2A0E310"
-            "F107E903";
+    sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin),
+            "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E",
+            HEX_256, NULL, NULL, NULL);
 
+    res = nl_block_init(&block);
+    block.type = OPEN;
+    res = nl_address_to_public(block.representative,
+            "xrb_1cwswatjifmjnmtu5toepkwca64m7qtuukizyjxsghujtpdr9466wjmn89d8");
+    sodium_hex2bin(block.account, sizeof(test_public_key_bin),
+            "5AC322F96BD7546B6F75AC620A5BF156E75A86151E64BD89DE2E5573ED00EE17",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(block.work, sizeof(block.work), "d2183f1b5b08a7a8", HEX_64,
+            NULL, NULL, NULL);
+    sodium_hex2bin(block.link, sizeof(block.link),
+            "BA5920AF3B105AB472DDD31100000F3952BA1BACCC4212874219064538BADFAA",
+            HEX_256, NULL, NULL, NULL);
+
+    res = nl_sign_block(&block, test_private_key_bin);
+
+    sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
+            block.signature, sizeof(block.signature));
+    strupper(guess_sig_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "12776A6DBF21AD285EAA187EC9E7BDF622C18AAFE765100CA62FCD4C7800FB91"
+            "4C8C43872CF0903B48FB81E5D29E3E45565AB2A6D9F26746D2A0E310F107E903",
+            guess_sig_hex);
+    res = nl_block_free(&block);
+    // Hash of this open block:
+    // "70B6BD8B225F62F59EF09D11287DEE95CC07DFA42EADBADA15D8DD4C6AD7C369",
     // Todo: Convert this json representation into a struc representation
     /* {
-     *     "hash": "70B6BD8B225F62F59EF09D11287DEE95CC07DFA42EADBADA15D8DD4C6AD7C369",
      *         "block": "{    "type": "open",    "source": "BA5920AF3B105AB472DDD31100000F3952BA1BACCC4212874219064538BADFAA",    "representative": "xrb_1cwswatjifmjnmtu5toepkwca64m7qtuukizyjxsghujtpdr9466wjmn89d8",    "account": "xrb_1pp56dwpqotnffqqdd543bfz4oq9dc53c9m6qp6xwdkoghpi3uiqwnxanucp",    "work": "d2183f1b5b08a7a8",    "signature":
      *         "12776A6DBF21AD285EAA187EC9E7BDF622C18AAFE765100CA62FCD4C7800FB914C8C43872CF0903B48FB81E5D29E3E45565AB2A6D9F26746D2A0E310F107E903"}"
      *         }
@@ -286,8 +306,3 @@ TEST_CASE("Verify Signature", "[nano_lib]"){
 TEST_CASE("Verify Hash", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
 }
-
-TEST_CASE("Sign Message", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
-}
-#endif
