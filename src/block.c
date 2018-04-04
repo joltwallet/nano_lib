@@ -74,29 +74,28 @@ static nl_err_t sign_change(nl_block_t *block, const uint256_t private_key){
     return E_SUCCESS;
 }
 
-#if 0
-static nl_err_t sign_change(nl_block_t *block,
-        const uint256_t private_key,
-        const uint256_t public_key){
+static nl_err_t sign_receive(nl_block_t *block, const uint256_t private_key){
+    uint256_t digest;
+    crypto_generichash_state state;
 
+    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
+    crypto_generichash_update(&state, block->previous, BIN_256);
+    crypto_generichash_update(&state, block->link, BIN_256);
+    crypto_generichash_final(&state, digest, BIN_256);
+
+    nl_sign_detached(block->signature,
+            digest, BIN_256,
+            private_key, block->account);
+    return E_SUCCESS;
 }
-#endif
 
 #if 0
 static nl_err_t sign_send(nl_block_t *block,
-        const uint256_t private_key,
-        const uint256_t public_key){
+        const uint256_t private_key){
 
 }
 #endif
 
-#if 0
-static nl_err_t sign_receive(nl_block_t *block,
-        const uint256_t private_key,
-        const uint256_t public_key){
-
-}
-#endif
 
 nl_err_t nl_sign_block(nl_block_t *block,
         const uint256_t private_key){
@@ -113,7 +112,7 @@ nl_err_t nl_sign_block(nl_block_t *block,
         case SEND:
             return E_NOT_IMPLEMENTED;
         case RECEIVE:
-            return E_NOT_IMPLEMENTED;
+            return sign_receive(block, private_key);
     }
     return E_END_OF_FUNCTION;
 }
