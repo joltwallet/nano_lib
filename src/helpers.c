@@ -13,38 +13,32 @@
 
 void strupper(char *s){
     /* Converts a null-terminated string to uppercase */
-    char ch;
-    for(unsigned int c=0; (ch=s[c]) != '\0'; c++){
-        if (ch >= 'a' && ch <= 'z')
+    for(unsigned int c=0; s[c]!='\0'; c++){
+        if (s[c] >= 'a' && s[c] <= 'z')
             s[c] = s[c] - 32;   
     }
 }
 
 void strnupper(char *s, const int n){
     /* Converts a null-terminated string to uppercase up to n characters*/
-    char ch;
-    for(int c=0; c < n; c++){
-        ch = s[c];
-        if (ch >= 'a' && ch <= 'z')
+    for(unsigned int c=0; c < n; c++){
+        if (s[c] >= 'a' && s[c] <= 'z')
             s[c] = s[c] - 32;   
     }
 }
 
 void strlower(char *s){
     /* Converts a null-terminated string to lowercase */
-    char ch;
-    for(unsigned int c=0; (ch=s[c]) != '\0'; c++){
-        if (ch >= 'A' && ch <= 'Z')
+    for(unsigned int c=0; s[c]!='\0'; c++){
+        if (s[c] >= 'A' && s[c] <= 'Z')
             s[c] = s[c] + 32;
     }
 }
 
 void strnlower(char *s, const int n){
     /* Converts a null-terminated string to lowercase up to n characters*/
-    char ch;
-    for(int c=0; c <= n; c++){
-        ch = s[c];
-        if (ch >= 'A' && ch <= 'Z')
+    for(unsigned int c=0; c <= n; c++){
+        if (s[c] >= 'A' && s[c] <= 'Z')
             s[c] = s[c] + 32;
     }
 }
@@ -55,6 +49,7 @@ void int_to_char_array(unsigned char *char_arr, uint32_t data){
         char_arr[i] = data & 0xFF;
         data >>= 8;
     }
+    sodium_memzero(&data, sizeof(data));
 }
 
 void nl_generate_seed(uint256_t seed_bin){
@@ -65,5 +60,6 @@ void nl_generate_seed(uint256_t seed_bin){
         rand_buffer = randombytes_random();
         int_to_char_array(seed_bin + 4*i, rand_buffer);
     }
+    sodium_memzero(&rand_buffer, sizeof(rand_buffer));
 }
 
