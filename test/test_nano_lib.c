@@ -19,6 +19,12 @@ TEST_CASE("Verify Mneumonic", "[nano_lib]"){
 
 TEST_CASE("Seed From Mneumonic", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
+    /* Use's Roosmaa's BIP39 Demo as reference for test case 
+     * https://github.com/roosmaa/nano-bip39-demo */
+    // "edge defense waste choose enrich upon flee junk siren film clown finish luggage leader kid quick brick print evidence swap drill paddle truly occur" -password "some password" -path "44'/165'/0'"
+    // Private key: 3be4fc2ef3f3b7374e6fc4fb6e7bb153f8a2998b3b3dab50853eabe128024143
+    // Public key: 5b65b0e8173ee0802c2c3e6c9080d1a16b06de1176c938a924f58670904e82c4
+    // Nano address: nano_1pu7p5n3ghq1i1p4rhmek41f5add1uh34xpb94nkbxe8g4a6x1p69emk8y1d
 }
 
 TEST_CASE("String Case Helpers", "[nano_lib]"){
