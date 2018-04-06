@@ -38,12 +38,38 @@ TEST_CASE("BIP39/44 Wordlist Search", "[nano_lib]"){
     TEST_ASSERT_EQUAL_INT16(-1, guess_index);
 
 }
-TEST_CASE("BIP39/44 Mnemonic to Entropy", "[nano_lib]"){
+TEST_CASE("BIP39/44 Verify Mnemonic", "[nano_lib]"){
     /* Using test vectors from:
      * https://github.com/trezor/python-mnemonic/blob/master/vectors.json
      */
-    CONFIDENTIAL uint256_t entropy;
-    CONFIDENTIAL char buf[MNEMONIC_BUF_LEN];
+    nl_err_t res;
+
+    res = nl_verify_mnemonic(
+            "abandon abandon abandon abandon abandon abandon "
+            "abandon abandon abandon abandon abandon about"
+            );
+    TEST_ASSERT_EQUAL_INT(E_SUCCESS, res);
+
+    res = nl_verify_mnemonic(
+            "  legal winner thank year wave sausage worth useful legal winner "
+            "thank yellow  "
+            );
+    TEST_ASSERT_EQUAL_INT(E_SUCCESS, res);
+
+    res = nl_verify_mnemonic(
+            "panda \neyebrow bullet gorilla call smoke muffin taste mesh "
+            "discover    soft ostrich alcohol speed nation flash devote level "
+            "hobby quick\t inner drive ghost inside"
+            );
+    TEST_ASSERT_EQUAL_INT(E_SUCCESS, res);
+
+    res = nl_verify_mnemonic(
+            "panda eyebrow  bullet gorilla call smoke muffin taste mesh "
+            "discover soft ostrich alcohol speed\n nation flash devote level "
+            "hobby quick inner drive ghost ghost "
+            );
+    TEST_ASSERT_EQUAL_INT(E_INVALID_CHECKSUM, res);
+
 }
 
 TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){

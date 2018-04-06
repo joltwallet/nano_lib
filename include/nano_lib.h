@@ -10,13 +10,15 @@ typedef struct{} block_t;
 typedef enum nl_err_t{
     E_SUCCESS=0,
     E_FAILURE,
+    E_NOT_IMPLEMENTED,
+    E_END_OF_FUNCTION,
     E_INSUFFICIENT_BUF,
     E_INVALID_ADDRESS,
-    E_END_OF_FUNCTION,
-    E_NOT_IMPLEMENTED,
     E_UNDEFINED_BLOCK_TYPE,
     E_INVALID_STRENGTH,
-    E_INVALID_MNEMONIC_LEN
+    E_INVALID_MNEMONIC,
+    E_INVALID_MNEMONIC_LEN,
+    E_INVALID_CHECKSUM
 } nl_err_t;
 
 /* Generic Definitions */
@@ -107,6 +109,7 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len);
 nl_err_t nl_mnemonic_generate(char buf[], uint16_t buf_len, uint16_t strength);
 nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
         const uint256_t entropy, const uint16_t strength);
+nl_err_t nl_verify_mnemonic(const char mnemonic[]);
 
 
 #endif

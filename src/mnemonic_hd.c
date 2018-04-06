@@ -34,7 +34,7 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
     // Generate Checksum
     uint8_t entropy_len = strength / 8;
 	uint8_t m_len = entropy_len * 3 / 4; //number of mnemonic words
-    CONFIDENTIAL unsigned char checksummed_entropy[sizeof(uint256_t) + 1];
+    CONFIDENTIAL unsigned char cs_entropy[sizeof(uint256_t) + 1];
 
 	if(buf_len < (m_len * 10 + 1)){
 		return E_INSUFFICIENT_BUF;
@@ -42,9 +42,9 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
 
     // Make checksummed entropy first entropy_len bits be entropy, remaining
     // bits (up to 8 needed) be the first bits from the sha256 hash
-    crypto_hash_sha256(checksummed_entropy, entropy, entropy_len);
-    checksummed_entropy[entropy_len] = checksummed_entropy[0];
-    memcpy(checksummed_entropy, entropy, entropy_len);
+    crypto_hash_sha256(cs_entropy, entropy, entropy_len);
+    cs_entropy[entropy_len] = cs_entropy[0];
+    memcpy(cs_entropy, entropy, entropy_len);
     
 
 	CONFIDENTIAL uint16_t list_idx;
@@ -55,7 +55,7 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
                 j < BITS_PER_WORD;
                 j++, bit_idx++) {
             list_idx <<=1;
-			list_idx += ( checksummed_entropy[bit_idx / 8] & 
+			list_idx += ( cs_entropy[bit_idx / 8] & 
 		                  (1 << (7 - bit_idx % 8))
                         ) > 0;
 		}
@@ -65,7 +65,7 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
 		buf[0] = (i < m_len - 1) ? ' ' : 0;
 	}
     sodium_memzero(&list_idx, sizeof(list_idx));
-	sodium_memzero(checksummed_entropy, sizeof(checksummed_entropy));
+	sodium_memzero(cs_entropy, sizeof(cs_entropy));
 
 	return E_SUCCESS;
 }
@@ -98,7 +98,7 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len){
             break;
         }
     }
-    // Check if it's zoo
+    // Check if it's zoo (index 2047)
     if(strncmp(word, wordlist[2047], word_len)==0){
         return 2047;
     }
@@ -106,37 +106,82 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len){
     return -1;
 }
 
-nl_err_t nl_mnemonic_to_entropy(uint256_t entropy, const char mnemonic[],
-        const uint8_t mnemonic_buf_len){
-    /* mnemonic should be null terminated
-     *
-     */
-    uint8_t m_len;
-    uint16_t i_word, i_letter;
-    char *current_word;
-    uint8_t current_word_len; // not including \0
-
-    // Get number of words in mnemonic
-    for(i_letter=0, m_len=0;
-            mnemonic[i_letter] || i_letter < mnemonic_buf_len;
-            i_letter++){
-        if(mnemonic[i_letter] == ' '){
-            m_len++;
+static uint8_t get_word_len(char **start, const char *str){
+    /* gets the length of a word and pointer to where it starts */
+    bool state = false;
+    uint8_t cc = 0;
+    *start = NULL;
+    for(; *str; str++){
+        if (*str != ' ' && *str != '\n' && *str != '\t'){
+            if(!state){
+                *start = (char *) str;
+            }
+            state = true;
+            cc++;
+        }
+        else if (state){
+            return cc;
         }
     }
+    return cc;
+}
+
+static uint8_t get_word_count(const char *str){
+    uint8_t wc = 0;  // word count
+    char *start;
+    uint8_t cc;
+    while((cc = get_word_len(&start, str))>0 ){
+        wc++;
+        str = start + cc;
+    }
+    return wc;
+}
+
+nl_err_t nl_verify_mnemonic(const char mnemonic[]){
+    /* null terminated mnemonic string. Assumes string has no leading or trailing spaces.
+     * Performs binary search for the string on the bip39 wordlist
+     */
+    int8_t j;
+    uint8_t m_len, i_word, current_word_len;
+    int16_t bit_idx, mnemonic_index;
+    char *current_word, *start;
+    CONFIDENTIAL unsigned char cs_entropy[sizeof(uint256_t) + 1] = {0};
+
+    // Check number of words in mnemonic
+    m_len = get_word_count(mnemonic);
     if (m_len!=12 && m_len!=18 && m_len!=24){
         return E_INVALID_MNEMONIC_LEN;
     }
 
-    // Iterate through words
-    for(i_word=0, i_letter=0, current_word=mnemonic;
-            i_word < m_len; i_word++){
-        // Find the length of the current word
-        for(current_word_len=0;
-                mnemonic[i_letter]!=' ' && i_letter<mnemonic_buf_len;
-                i_letter++){
-            current_word_len++;
+    // Iterate through words in user's mnemonic
+    for(i_word=0, bit_idx=0, current_word=(char *)mnemonic;
+            i_word < m_len;
+            i_word++, current_word+=current_word_len){
+        current_word_len = get_word_len(&start, current_word);
+        current_word = start;
+        mnemonic_index = nl_search_wordlist(current_word, current_word_len);
+        if(mnemonic_index == -1){
+            return E_INVALID_MNEMONIC;
+        }
+        for(j=BITS_PER_WORD-1; j>=0; j--, bit_idx++){
+            if(mnemonic_index & (1 << j)){
+                cs_entropy[bit_idx/8] |= 1 << (7 - (bit_idx % 8)) ;
+            }
         }
     }
-    return E_SUCCESS;
+
+    // Verify Checksum
+    cs_entropy[32] = cs_entropy[m_len * 4/3];
+    crypto_hash_sha256(cs_entropy, cs_entropy, m_len * 4/3);
+	if (m_len == 12 && (cs_entropy[0] & 0xF0) == (cs_entropy[32] & 0xF0) ) {
+		return E_SUCCESS;
+	}
+	else if (m_len == 18 && (cs_entropy[0] & 0xFC) == (cs_entropy[32] & 0xFC)) {
+		return E_SUCCESS;
+	}
+	else if (m_len == 24 && cs_entropy[0] == cs_entropy[32]) {
+		return E_SUCCESS;
+	}
+
+    return E_INVALID_CHECKSUM;
 }
