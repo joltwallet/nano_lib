@@ -6,6 +6,7 @@
 /* Structs (and Struct Prototypes)*/
 typedef struct{} block_t;
 
+/* Errors Nano Lib functions can return */
 typedef enum nl_err_t{
     E_SUCCESS=0,
     E_FAILURE,
@@ -13,10 +14,14 @@ typedef enum nl_err_t{
     E_INVALID_ADDRESS,
     E_END_OF_FUNCTION,
     E_NOT_IMPLEMENTED,
-    E_UNDEFINED_BLOCK_TYPE
+    E_UNDEFINED_BLOCK_TYPE,
+    E_INVALID_STRENGTH,
+    E_INVALID_MNEMONIC_LEN
 } nl_err_t;
 
 /* Generic Definitions */
+#define CONFIDENTIAL // Way to mark sensitive data
+    
 #define BIN_64 8
 #define BIN_128 16
 #define BIN_256 32
@@ -30,6 +35,7 @@ typedef enum nl_err_t{
 /* Constant Buffer Lengths */
 #define ADDRESS_BUF_LEN 70
 #define BLOCK_BUF_LEN 512 // todo: optimize this number
+#define MNEMONIC_BUF_LEN (24 * 10 + 1)
 
 /* Useful Extra values */
 #define BURN_ADDRESS "xrb_1111111111111111111111111111111111111111111111111111hifc8npp"
@@ -94,5 +100,11 @@ int nl_sign_detached(uint512_t sig,
         const uint256_t sk, const uint256_t pk);
 
 nl_err_t nl_sign_block(nl_block_t *block, const uint256_t private_key);
+
+
+nl_err_t nl_mnemonic_generate(char buf[], uint16_t buf_len, uint16_t strength);
+nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
+        const uint256_t entropy, const uint16_t strength);
+
 
 #endif
