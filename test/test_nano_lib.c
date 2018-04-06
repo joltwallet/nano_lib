@@ -9,6 +9,43 @@
 #include "nano_lib.h"
 #include "helpers.h"
 
+TEST_CASE("BIP39/44 Wordlist Search", "[nano_lib]"){
+    char word[10];
+    int16_t guess_index;
+
+    strcpy(word, "abandon");
+    guess_index = nl_search_wordlist(word, strlen(word));
+    TEST_ASSERT_EQUAL_INT16(0, guess_index);
+
+    strcpy(word, "zoo");
+    guess_index = nl_search_wordlist(word, strlen(word));
+    TEST_ASSERT_EQUAL_INT16(2047, guess_index);
+
+    strcpy(word, "banana");
+    guess_index = nl_search_wordlist(word, strlen(word));
+    TEST_ASSERT_EQUAL_INT16(145, guess_index);
+
+    strcpy(word, "meow");
+    guess_index = nl_search_wordlist(word, strlen(word));
+    TEST_ASSERT_EQUAL_INT16(-1, guess_index);
+
+    strcpy(word, "zoo1");
+    guess_index = nl_search_wordlist(word, strlen(word));
+    TEST_ASSERT_EQUAL_INT16(-1, guess_index);
+
+    strcpy(word, "1zoo");
+    guess_index = nl_search_wordlist(word, strlen(word));
+    TEST_ASSERT_EQUAL_INT16(-1, guess_index);
+
+}
+TEST_CASE("BIP39/44 Mnemonic to Entropy", "[nano_lib]"){
+    /* Using test vectors from:
+     * https://github.com/trezor/python-mnemonic/blob/master/vectors.json
+     */
+    CONFIDENTIAL uint256_t entropy;
+    CONFIDENTIAL char buf[MNEMONIC_BUF_LEN];
+}
+
 TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){
     /* Using test vectors from:
      * https://github.com/trezor/python-mnemonic/blob/master/vectors.json

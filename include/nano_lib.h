@@ -21,7 +21,8 @@ typedef enum nl_err_t{
 
 /* Generic Definitions */
 #define CONFIDENTIAL // Way to mark sensitive data
-    
+#define NUM_OF(x) (sizeof (x) / sizeof (*x))
+
 #define BIN_64 8
 #define BIN_128 16
 #define BIN_256 32
@@ -70,12 +71,12 @@ typedef struct nl_block_t{
 } nl_block_t;
 
 /* Lookup Tables */
-static const char BASE32_ALPHABET[] = {
+static const char const BASE32_ALPHABET[] = {
         '1', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
         'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'o', 'p', 'q',
         'r', 's', 't', 'u', 'w', 'x', 'y', 'z' };
 
-static const uint8_t BASE32_TABLE[] = {
+static const uint8_t const BASE32_TABLE[] = {
     0xff, 0x00, 0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x08, 0x09, 0x0a,
     0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0xff, 0x13,
@@ -102,6 +103,7 @@ int nl_sign_detached(uint512_t sig,
 nl_err_t nl_sign_block(nl_block_t *block, const uint256_t private_key);
 
 
+int16_t nl_search_wordlist(char *word, uint8_t word_len);
 nl_err_t nl_mnemonic_generate(char buf[], uint16_t buf_len, uint16_t strength);
 nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
         const uint256_t entropy, const uint16_t strength);
