@@ -18,7 +18,8 @@ typedef enum nl_err_t{
     E_INVALID_STRENGTH,
     E_INVALID_MNEMONIC,
     E_INVALID_MNEMONIC_LEN,
-    E_INVALID_CHECKSUM
+    E_INVALID_CHECKSUM,
+    E_UNABLE_ALLOCATE_MEM,
 } nl_err_t;
 
 /* Generic Definitions */
@@ -110,6 +111,8 @@ nl_err_t nl_mnemonic_generate(char buf[], uint16_t buf_len, uint16_t strength);
 nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
         const uint256_t entropy, const uint16_t strength);
 nl_err_t nl_verify_mnemonic(const char mnemonic[]);
+nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed, 
+        const char mnemonic[], const char passphrase[]);
 
 
 #endif

@@ -38,6 +38,7 @@ TEST_CASE("BIP39/44 Wordlist Search", "[nano_lib]"){
     TEST_ASSERT_EQUAL_INT16(-1, guess_index);
 
 }
+
 TEST_CASE("BIP39/44 Verify Mnemonic", "[nano_lib]"){
     /* Using test vectors from:
      * https://github.com/trezor/python-mnemonic/blob/master/vectors.json
@@ -148,7 +149,24 @@ TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){
     sodium_memzero(buf, sizeof(buf));
 }
 
-TEST_CASE("Nano Seed From Mneumonic", "[nano_lib]"){
+TEST_CASE("BIP39/44 Mnemonic To Master Seed", "[nano_lib]"){
+    CONFIDENTIAL uint512_t guess_master_seed_bin;
+    CONFIDENTIAL hex512_t guess_master_seed_hex;
+    nl_err_t res;
+    res = nl_mnemonic_to_master_seed(guess_master_seed_bin, 
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+            "TREZOR");
+    sodium_bin2hex(guess_master_seed_hex, sizeof(guess_master_seed_hex),
+            guess_master_seed_bin, sizeof(guess_master_seed_bin));
+    sodium_memzero(guess_master_seed_bin, sizeof(guess_master_seed_bin));
+    TEST_ASSERT_EQUAL_STRING(
+            "c55257c360c07c72029aebc1b53c05ed0362ada38ead3e3e9efa3708e5349553"
+            "1f09a6987599d18264c1e1c92f2cf141630c7a3c4ab7c81b2f001698e7463b04",
+            guess_master_seed_hex);
+    sodium_memzero(guess_master_seed_hex, sizeof(guess_master_seed_hex));
+}
+
+TEST_CASE("Nano Seed From Mnemonic", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
     /* Use's Roosmaa's BIP39 Demo as reference for test case 
      * https://github.com/roosmaa/nano-bip39-demo */
@@ -156,6 +174,12 @@ TEST_CASE("Nano Seed From Mneumonic", "[nano_lib]"){
     // Private key: 3be4fc2ef3f3b7374e6fc4fb6e7bb153f8a2998b3b3dab50853eabe128024143
     // Public key: 5b65b0e8173ee0802c2c3e6c9080d1a16b06de1176c938a924f58670904e82c4
     // Nano address: nano_1pu7p5n3ghq1i1p4rhmek41f5add1uh34xpb94nkbxe8g4a6x1p69emk8y1d
+    //
+
+    /* Test 1 - Make Sure Bitcoin Derivation Works */
+
+
+    /* Test 2 - Nano Derivation */
 }
 
 TEST_CASE("String Case Helpers", "[nano_lib]"){
@@ -376,9 +400,8 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
     res = nl_address_to_public(block.representative,
             "xrb_3p1asma84n8k84joneka776q4egm5wwru3suho9wjsfyuem8j95b3c78nw8j");
-    // Probably not valid work, but it doesn't matter
     sodium_hex2bin(block.work, sizeof(block.work),
-            "0000000000000000", HEX_64, NULL, NULL, NULL);
+            "677d7dcc1e358b37", HEX_64, NULL, NULL, NULL);
     mbedtls_mpi_read_string(&(block.balance), 10,
             "5000000000000000000000000000001");
 

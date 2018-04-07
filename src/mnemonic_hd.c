@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sodium.h"
+#include "sodium/private/common.h"
 #include "freertos/FreeRTOS.h"
 
 #include "nano_lib.h"
@@ -9,6 +10,55 @@
 #include "bip39_en.h"
 
 #define BITS_PER_WORD 11
+
+static void pbkdf2_hmac_sha512(const uint8_t *passwd, size_t passwdlen, 
+		const uint8_t *salt, size_t saltlen,
+		uint8_t *buf, size_t dkLen, uint64_t c){
+	/*
+     * c - number of iterations
+     * buf - stores the derived key 
+     * dkLen - derived key length in bits
+     */
+    crypto_auth_hmacsha512_state PShctx, hctx;
+    size_t                       i;
+    uint8_t                      ivec[4];
+    uint8_t                      U[crypto_auth_hmacsha512_BYTES];
+    uint8_t                      T[crypto_auth_hmacsha512_BYTES];
+    uint64_t                     j;
+    int                          k;
+    size_t                       clen;
+
+    crypto_auth_hmacsha512_init(&PShctx, passwd, passwdlen);
+    crypto_auth_hmacsha512_update(&PShctx, salt, saltlen);
+
+    for (i = 0; i * crypto_auth_hmacsha512_BYTES < dkLen; i++) {
+        STORE32_BE(ivec, (uint32_t)(i + 1));
+        memcpy(&hctx, &PShctx, sizeof(crypto_auth_hmacsha512_state));
+        crypto_auth_hmacsha512_update(&hctx, ivec, sizeof(ivec));
+        crypto_auth_hmacsha512_final(&hctx, U);
+
+        memcpy(T, U, sizeof(T));
+        /* LCOV_EXCL_START */
+        for (j = 2; j <= c; j++) {
+            crypto_auth_hmacsha512_init(&hctx, passwd, passwdlen);
+            crypto_auth_hmacsha512_update(&hctx, U, sizeof(U));
+            crypto_auth_hmacsha512_final(&hctx, U);
+
+            for (k = 0; k < sizeof(U); k++) {
+                T[k] ^= U[k];
+            }
+        }
+        /* LCOV_EXCL_STOP */
+
+        clen = dkLen - i * 64;
+        if (clen > crypto_auth_hmacsha512_BYTES) {
+            clen = crypto_auth_hmacsha512_BYTES;
+        }
+        memcpy(&buf[i * crypto_auth_hmacsha512_BYTES], T, clen);
+    }
+    sodium_memzero((void *) &PShctx, sizeof PShctx);
+}
+
 
 nl_err_t nl_mnemonic_generate(char buf[], uint16_t buf_len, uint16_t strength){
     /* Strength in bits */
@@ -141,7 +191,7 @@ static uint8_t get_word_count(const char *str){
 }
 
 nl_err_t nl_verify_mnemonic(const char mnemonic[]){
-    /* null terminated mnemonic string. Assumes string has no leading or trailing spaces.
+    /* null terminated mnemonic string.
      * Performs binary search for the string on the bip39 wordlist
      */
     int8_t j;
@@ -189,21 +239,29 @@ nl_err_t nl_verify_mnemonic(const char mnemonic[]){
     return E_INVALID_CHECKSUM;
 }
 
-#if 0
-nl_err_t nl_mnemonic_to_master_seed(const char mnemonic[], const char passphrase[]){
-
+nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed, 
+        const char mnemonic[], const char passphrase[]){
     /* Currently requires mnemonic to have nothing unusual such as:
      *  * Leading or Trailing Spaces
      *  * multiple spaces between words
      *  * other characters like \n or \t
      * mnemonic must be a null terminated string.
-     * passphrase must be a null terminated string. Up to blah bytes
+     * passphrase must be a null terminated string. Up to blah bytes.
+     * It is recommended to verify the mnemonic before calling this function.
      */
-    uint8_t m_len = get_word_count(mnemonic);
-    CONFIDENTIAL unsigned char *salt[8 + 256];
-
+    CONFIDENTIAL char *salt = malloc(8+strlen(passphrase)+1);
+    if (salt == NULL){
+        return E_UNABLE_ALLOCATE_MEM;
+    }
     memcpy(salt, "mnemonic", 8);
-    memcpy(salt + 8, passphrase, strlen(passphrase));
-
+    strcpy(salt + 8, passphrase);
+    printf("salt: %s\n", salt);
+	pbkdf2_hmac_sha512(
+            (uint8_t *) mnemonic, strlen(mnemonic), 
+			(uint8_t *) salt, strlen(salt),
+            (uint8_t *) master_seed, sizeof(uint512_t),
+			2048);
+    sodium_memzero(salt, strlen(salt));
+    free(salt);
+    return E_SUCCESS;
 }
-#endif
