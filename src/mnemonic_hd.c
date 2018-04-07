@@ -107,7 +107,8 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len){
 }
 
 static uint8_t get_word_len(char **start, const char *str){
-    /* gets the length of a word and pointer to where it starts */
+    /* gets the length of a word and pointer to where it starts 
+     * ignores whitespace, newlines, and tabs*/
     bool state = false;
     uint8_t cc = 0;
     *start = NULL;
@@ -127,6 +128,8 @@ static uint8_t get_word_len(char **start, const char *str){
 }
 
 static uint8_t get_word_count(const char *str){
+    /* counts the number of words separated by possibly multiple spaces,
+     * newlines, and tabs. */
     uint8_t wc = 0;  // word count
     char *start;
     uint8_t cc;
@@ -185,3 +188,22 @@ nl_err_t nl_verify_mnemonic(const char mnemonic[]){
 
     return E_INVALID_CHECKSUM;
 }
+
+#if 0
+nl_err_t nl_mnemonic_to_master_seed(const char mnemonic[], const char passphrase[]){
+
+    /* Currently requires mnemonic to have nothing unusual such as:
+     *  * Leading or Trailing Spaces
+     *  * multiple spaces between words
+     *  * other characters like \n or \t
+     * mnemonic must be a null terminated string.
+     * passphrase must be a null terminated string. Up to blah bytes
+     */
+    uint8_t m_len = get_word_count(mnemonic);
+    CONFIDENTIAL unsigned char *salt[8 + 256];
+
+    memcpy(salt, "mnemonic", 8);
+    memcpy(salt + 8, passphrase, strlen(passphrase));
+
+}
+#endif

@@ -148,10 +148,6 @@ TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){
     sodium_memzero(buf, sizeof(buf));
 }
 
-TEST_CASE("Verify Mnemonic", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
-}
-
 TEST_CASE("Nano Seed From Mneumonic", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Not Implemented");
     /* Use's Roosmaa's BIP39 Demo as reference for test case 
@@ -356,6 +352,51 @@ TEST_CASE("Sign Message", "[nano_lib]"){
             guess_sig_hex);
 }
 
+TEST_CASE("Sign State Block", "[nano_lib]"){
+    nl_err_t res;
+    hex512_t guess_sig_hex;
+    uint256_t test_private_key_bin;
+    nl_block_t block;
+
+    /* Test 1 */
+    sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin),
+            "B61AEB236B0C8A2DFDD71C06F1F3544C524801E4B45B7A34DFDEC6F74F177927",
+            HEX_256, NULL, NULL, NULL);
+
+    res = nl_block_init(&block);
+    block.type = STATE;
+    sodium_hex2bin(block.account, sizeof(block.account),
+            "C1CD33D62CC72FAC1294C990D4DD2B02A4DB85D42F220C48C13AF288FB21D4C1",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(block.previous, sizeof(block.previous),
+            "FC5A7FB777110A858052468D448B2DF22B648943C097C0608D1E2341007438B0",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(block.link, sizeof(block.link),
+            "B2EC73C1F503F47E051AD72ECB512C63BA8E1A0ACC2CEE4EA9A22FE1CBDB693F",
+            HEX_256, NULL, NULL, NULL);
+    res = nl_address_to_public(block.representative,
+            "xrb_3p1asma84n8k84joneka776q4egm5wwru3suho9wjsfyuem8j95b3c78nw8j");
+    // Probably not valid work, but it doesn't matter
+    sodium_hex2bin(block.work, sizeof(block.work),
+            "0000000000000000", HEX_64, NULL, NULL, NULL);
+    mbedtls_mpi_read_string(&(block.balance), 10,
+            "5000000000000000000000000000001");
+
+    res = nl_sign_block(&block, test_private_key_bin);
+
+    sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
+            block.signature, sizeof(block.signature));
+    strupper(guess_sig_hex);
+    nl_block_free(&block);
+    TEST_ASSERT_EQUAL_STRING(
+            "90CBD62F5466E35DB3BFE5EFDBC6283BD30C0591A3787C9458D11F2AF6188E45"
+            "E6E71B5F4A8E3598B1C80080D6024867878E355161AD1935CD757477991D3B0B",
+            guess_sig_hex);
+
+    // Hash of this state block:
+    // "hash": "597395E83BD04DF8EF30AF04234EAAFE0606A883CF4AEAD2DB8196AAF5C4444F"
+}
+
 TEST_CASE("Sign Send Block", "[nano_lib]"){
     nl_err_t res;
     hex512_t guess_sig_hex;
@@ -522,10 +563,6 @@ TEST_CASE("Sign Open Block", "[nano_lib]"){
     res = nl_block_free(&block);
     // Hash of this open block:
     // "70B6BD8B225F62F59EF09D11287DEE95CC07DFA42EADBADA15D8DD4C6AD7C369",
-}
-
-TEST_CASE("Sign State Block", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
 }
 
 TEST_CASE("Verify Signature", "[nano_lib]"){
