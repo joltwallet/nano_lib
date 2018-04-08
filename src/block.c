@@ -136,7 +136,7 @@ void nl_compute_block_hash(const nl_block_t *block, uint256_t hash){
 
     mbedtls_mpi_write_binary(&(block->balance), balance, sizeof(balance));
 
-    crypto_generichash_init(&state, NULL, sizeof(hash), BIN_256);
+    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
     crypto_generichash_update(&state, STATE_BLOCK_PREAMBLE, sizeof(STATE_BLOCK_PREAMBLE));
     crypto_generichash_update(&state, block->account, sizeof(block->account));
     crypto_generichash_update(&state, block->previous, sizeof(block->previous));

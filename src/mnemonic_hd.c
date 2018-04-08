@@ -11,6 +11,63 @@
 
 #define BITS_PER_WORD 11
 
+#define DERIVATION_PURPOSE 44
+//#define BIP32_KEY "Bitcoin seed"
+#define BIP32_KEY "ed25519 seed"
+#define HARDENED 0x80000000
+
+inline void write_be(uint8_t *data, uint32_t x)
+{
+	data[0] = x >> 24;
+	data[1] = x >> 16;
+	data[2] = x >> 8;
+	data[3] = x;
+}
+void nl_master_seed_to_nano_seed(uint256_t nano_seed, uint512_t master_seed){
+    /* Derives hardened private key for coin_type and account.
+     * For Nano, coin_type is 165 and account should always be 0 since we
+     * will use the "private key" as a Nano Seed and further derive accounts
+     * from it.
+     */
+    uint512_t digest;
+    unsigned char data[1+32+4] = {0};
+    crypto_auth_hmacsha512_state state;
+    uint32_t code_index;// = CONFIG_NANO_LIB_DERIVATION_PATH | HARDENED;
+
+    crypto_auth_hmacsha512_init(&state, (uint8_t *)BIP32_KEY, strlen(BIP32_KEY));
+    crypto_auth_hmacsha512_update(&state, master_seed, BIN_512);
+    crypto_auth_hmacsha512_final(&state, digest);
+
+    memcpy(data+1, digest, 32);
+    code_index = 44 | HARDENED;
+	write_be(data+1+32, code_index);
+
+    crypto_auth_hmacsha512_init(&state, digest+32, 32);
+    crypto_auth_hmacsha512_update(&state, data, sizeof(data));
+    crypto_auth_hmacsha512_final(&state, digest);
+
+    memcpy(data+1, digest, 32);
+    code_index = CONFIG_NANO_LIB_DERIVATION_PATH | HARDENED;
+	write_be(data+1+32, code_index);
+
+    crypto_auth_hmacsha512_init(&state, digest+32, 32);
+    crypto_auth_hmacsha512_update(&state, data, sizeof(data));
+    crypto_auth_hmacsha512_final(&state, digest);
+
+    memcpy(data+1, digest, 32);
+    code_index = 0 | HARDENED;
+	write_be(data+1+32, code_index);
+
+    crypto_auth_hmacsha512_init(&state, digest+32, 32);
+    crypto_auth_hmacsha512_update(&state, data, sizeof(data));
+    crypto_auth_hmacsha512_final(&state, digest);
+
+    memcpy(nano_seed, digest, 32);
+    sodium_memzero(digest, sizeof(digest));
+    sodium_memzero(&state, sizeof(state));
+    sodium_memzero(&data, sizeof(data));
+}
+
 static void pbkdf2_hmac_sha512(const uint8_t *passwd, size_t passwdlen, 
 		const uint8_t *salt, size_t saltlen,
 		uint8_t *buf, size_t dkLen, uint64_t c){
