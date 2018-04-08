@@ -26,8 +26,6 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
 
     nl_block_init(&block);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_block_init returned an unsuccessful code");
     block.type = STATE;
     sodium_hex2bin(block.account, sizeof(block.account),
             "C1CD33D62CC72FAC1294C990D4DD2B02A4DB85D42F220C48C13AF288FB21D4C1",
@@ -40,8 +38,6 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
     nl_address_to_public(block.representative,
             "xrb_3p1asma84n8k84joneka776q4egm5wwru3suho9wjsfyuem8j95b3c78nw8j");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_address_to_public returned an unsuccessful code");
     sodium_hex2bin(block.work, sizeof(block.work),
             "677d7dcc1e358b37", HEX_64, NULL, NULL, NULL);
     mbedtls_mpi_read_string(&(block.balance), 10,
@@ -225,7 +221,7 @@ TEST_CASE("Sign Open Block", "[nano_lib]"){
             "BA5920AF3B105AB472DDD31100000F3952BA1BACCC4212874219064538BADFAA",
             HEX_256, NULL, NULL, NULL);
 
-    nl_sign_block(&block, test_private_key_bin);
+    res = nl_sign_block(&block, test_private_key_bin);
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
             "nl_sign_block returned an unsuccessful code");
 

@@ -15,7 +15,6 @@ TEST_CASE("Verify Signature", "[nano_lib]"){
 }
 
 TEST_CASE("Private Key To Public Key", "[nano_lib]"){
-	nl_err_t res;
     uint256_t test_private_key_bin;
     uint256_t guess_public_key_bin;
     hex256_t guess_public_key_hex;
@@ -24,9 +23,7 @@ TEST_CASE("Private Key To Public Key", "[nano_lib]"){
     sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin), \
             "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290",
             HEX_256, NULL, NULL, NULL);
-	res = nl_private_to_public(guess_public_key_bin, test_private_key_bin);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_private_to_public returned an unsuccessful code");
+	nl_private_to_public(guess_public_key_bin, test_private_key_bin);
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
     strupper(guess_public_key_hex);
@@ -39,16 +36,13 @@ TEST_CASE("Seed To Private Key", "[nano_lib]"){
     uint256_t test_seed_bin;
     CONFIDENTIAL uint256_t guess_private_key_bin;
     CONFIDENTIAL hex256_t guess_private_key_hex;
-    nl_err_t res;
 
     sodium_hex2bin(test_seed_bin, sizeof(test_seed_bin), \
             "1A620665F60713F867D7D7F77BA337360B303C8C3C94E84819C4E282B6EAC262",
             HEX_256, NULL, NULL, NULL);
 
     /* Test Index 0 */
-    res = nl_seed_to_private(guess_private_key_bin, test_seed_bin, 0);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_seed_to_private returned an unsuccessful code");
+    nl_seed_to_private(guess_private_key_bin, test_seed_bin, 0);
     sodium_bin2hex(guess_private_key_hex, sizeof(guess_private_key_hex),
             guess_private_key_bin, sizeof(guess_private_key_bin));
     strupper(guess_private_key_hex);
@@ -57,9 +51,7 @@ TEST_CASE("Seed To Private Key", "[nano_lib]"){
             guess_private_key_hex);
 
     /* Test Index 1 */
-    res = nl_seed_to_private(guess_private_key_bin, test_seed_bin, 1);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_seed_to_private returned an unsuccessful code");
+    nl_seed_to_private(guess_private_key_bin, test_seed_bin, 1);
     sodium_bin2hex(guess_private_key_hex, sizeof(guess_private_key_hex),
             guess_private_key_bin, sizeof(guess_private_key_bin));
     strupper(guess_private_key_hex);
