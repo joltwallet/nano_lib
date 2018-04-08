@@ -28,8 +28,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
     nl_address_to_public(block.representative,
             "xrb_3p1asma84n8k84joneka776q4egm5wwru3suho9wjsfyuem8j95b3c78nw8j");
-    sodium_hex2bin(block.work, sizeof(block.work),
-            "677d7dcc1e358b37", HEX_64, NULL, NULL, NULL);
+    block.work = nl_parse_server_work_string("677d7dcc1e358b37");
     mbedtls_mpi_read_string(&(block.balance), 10,
             "5000000000000000000000000000001");
 
@@ -68,8 +67,7 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
     nl_address_to_public(block.representative,
             "xrb_3p1asma84n8k84joneka776q4egm5wwru3suho9wjsfyuem8j95b3c78nw8j");
-    sodium_hex2bin(block.work, sizeof(block.work),
-            "677d7dcc1e358b37", HEX_64, NULL, NULL, NULL);
+    block.work = nl_parse_server_work_string("677d7dcc1e358b37");
     mbedtls_mpi_read_string(&(block.balance), 10,
             "5000000000000000000000000000001");
 
@@ -111,8 +109,7 @@ TEST_CASE("Sign Send Block", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
     nl_address_to_public(block.link,
             "xrb_1cwswatjifmjnmtu5toepkwca64m7qtuukizyjxsghujtpdr9466wjmn89d8");
-    sodium_hex2bin(block.work, sizeof(block.work),
-            "f0f4d56c95d3e7e5", HEX_64, NULL, NULL, NULL);
+    block.work = nl_parse_server_work_string("f0f4d56c95d3e7e5");
 
     // Compute final account balance
     mbedtls_mpi transaction_amount;
@@ -164,8 +161,7 @@ TEST_CASE("Sign Receive Block", "[nano_lib]"){
     sodium_hex2bin(block.link, sizeof(block.link),
             "6447171713541D387BAB4161E6BA40A88F41140218395DCCA0230BC29827717A",
             HEX_256, NULL, NULL, NULL);
-    sodium_hex2bin(block.work, sizeof(block.work),
-            "f22c729331e5efb3", HEX_64, NULL, NULL, NULL);
+    block.work = nl_parse_server_work_string("f22c729331e5efb3");
 
     res = nl_sign_block(&block, test_private_key_bin);
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
@@ -205,9 +201,7 @@ TEST_CASE("Sign Change Block", "[nano_lib]"){
     sodium_hex2bin(block.previous, sizeof(block.previous),
             "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF",
             HEX_256, NULL, NULL, NULL);
-
-    sodium_hex2bin(block.work, sizeof(block.work), "3a74e84a07e6837c", HEX_64,
-            NULL, NULL, NULL);
+    block.work = nl_parse_server_work_string("3a74e84a07e6837c");
 
     res = nl_sign_block(&block, test_private_key_bin);
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
@@ -245,8 +239,7 @@ TEST_CASE("Sign Open Block", "[nano_lib]"){
     sodium_hex2bin(block.account, sizeof(block.account),
             "5AC322F96BD7546B6F75AC620A5BF156E75A86151E64BD89DE2E5573ED00EE17",
             HEX_256, NULL, NULL, NULL);
-    sodium_hex2bin(block.work, sizeof(block.work), "d2183f1b5b08a7a8", HEX_64,
-            NULL, NULL, NULL);
+    block.work = nl_parse_server_work_string("d2183f1b5b08a7a8");
     sodium_hex2bin(block.link, sizeof(block.link),
             "BA5920AF3B105AB472DDD31100000F3952BA1BACCC4212874219064538BADFAA",
             HEX_256, NULL, NULL, NULL);

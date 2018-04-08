@@ -51,6 +51,19 @@ void write_be(uint8_t *data, uint32_t x){
     sodium_memzero(&x, sizeof(x));
 }
 
+void write_be64(uint8_t *data, uint64_t x){
+	data[0] = x >> 56;
+	data[1] = x >> 48;
+	data[2] = x >> 40;
+	data[3] = x >> 32;
+	data[4] = x >> 24;
+	data[5] = x >> 16;
+	data[6] = x >> 8;
+	data[7] = x;
+    sodium_memzero(&x, sizeof(x));
+}
+
+
 void nl_generate_seed(uint256_t seed_bin){
     // Generates a random 32-long array (256 bits) of random data into seed_bin
     uint32_t rand_buffer;

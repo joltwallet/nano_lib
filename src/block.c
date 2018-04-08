@@ -16,7 +16,7 @@ nl_err_t nl_block_init(nl_block_t *block){
     sodium_memzero(block->account, sizeof(block->account));
     sodium_memzero(block->previous, sizeof(block->previous));
     sodium_memzero(block->representative, sizeof(block->representative));
-    sodium_memzero(block->work, sizeof(block->work));
+    sodium_memzero(&(block->work), sizeof(block->work));
     sodium_memzero(block->signature, sizeof(block->signature));
     sodium_memzero(block->link, sizeof(block->link));
     mbedtls_mpi_init(&(block->balance));

@@ -67,7 +67,7 @@ typedef struct nl_block_t{
     uint256_t account;
     uint256_t previous;
     uint256_t representative;
-    bin64_t work;
+    uint64_t work;
     uint512_t signature;
     uint256_t link;
     mbedtls_mpi balance;
@@ -121,5 +121,7 @@ nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed,
 void nl_master_seed_to_nano_private_key(uint256_t private_key, 
         uint512_t master_seed, uint32_t index);
 
-
+uint64_t nl_parse_server_work_string(char work[HEX_64]);
+void nl_generate_server_work_string(char work[HEX_64], const uint64_t nonce);
+bool nl_block_pow_verify(nl_block_t *block);
 #endif
