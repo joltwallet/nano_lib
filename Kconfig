@@ -7,6 +7,13 @@ menu "Nano ESP32 Library Config"
         help
             help text
 
+    config NANO_LIB_POW_UNIT_TEST_IGNORE
+        bool
+        prompt "Ignore the PoW Unit Test (long run time)"
+        default true
+        help
+            help text
+
     config NANO_LIB_ADDRESS_PREFIX
         string
         prompt "prefix to apply for address data"

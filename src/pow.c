@@ -36,7 +36,6 @@ static uint64_t pow_output (uint256_t hash, uint64_t nonce){
     crypto_generichash_blake2b_update(&state, (uint8_t *)&nonce, sizeof(nonce));
     crypto_generichash_blake2b_update(&state, hash, BIN_256);
     crypto_generichash_blake2b_final(&state, (uint8_t *)&res, sizeof(res));
-    printf("res: %llx\n", res);
 	return res;
 }
 
@@ -49,11 +48,12 @@ bool nl_pow_verify(uint256_t hash, uint64_t nonce){
 	return pow_output (hash, nonce) < publish_full_threshold;
 }
 
-bool nl_block_pow_verify(nl_block_t *block){
-	/* Usually hash is the previous block hash. For open blocks its the
-     * public key.
-     *
-     * Returns False on success
-     */
-    return nl_pow_verify(block->previous, block->work);
+
+uint64_t nl_compute_local_pow(uint256_t hash){
+    // This will only fill up 32-bits of nonce; but its just a non-crtical
+    // random starting point
+    uint64_t nonce;
+    for(nonce = randombytes_random(); nl_pow_verify(hash, nonce); nonce++);
+    return nonce;
 }
+
