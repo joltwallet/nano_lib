@@ -17,10 +17,12 @@ typedef struct hd_node_t {
     uint256_t chain_code;
 } hd_node_t;
 
+#if 0
 static void hd_node_copy(hd_node_t *dst, const hd_node_t *src){
     memcpy(dst->key, src->key, sizeof(src->key));
     memcpy(dst->chain_code, src->chain_code, sizeof(src->chain_code));
 }
+#endif
 
 static void hd_node_init(hd_node_t *node, const uint512_t master_seed, const char *key){
     /* key - null-terminated string. Typically "ed25519 seed" or "Bitcoin Seed" */
@@ -44,9 +46,12 @@ static void hd_node_iterate_hardened(hd_node_t *node, uint32_t val){
     CONFIDENTIAL crypto_auth_hmacsha512_state state;
     unsigned char data[1+32+4] = {0};
 
+    val |= HARDENED;
+    val = bswap_32(val);
+
     memcpy(data+1, node->key, sizeof(node->key));
     memcpy(data+1+32, node->chain_code, sizeof(node->chain_code));
-	write_be(data+1+32, val | HARDENED);
+	memcpy(data+1+32, &val, sizeof(val) );
 
     crypto_auth_hmacsha512_init(&state, node->chain_code, sizeof(node->chain_code));
     crypto_auth_hmacsha512_update(&state, data, sizeof(data));

@@ -16,8 +16,6 @@ void strnupper(char *s, const int n);
 void strlower(char *s);
 void strnlower(char *s, const int n);
 
-void write_be(uint8_t *data, uint32_t x); //deprecate this  
-void write_be64(uint8_t *data, uint64_t x); //deprecate this
 void nl_generate_seed(uint256_t seed_bin);
 
 #endif

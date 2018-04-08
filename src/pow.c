@@ -11,7 +11,7 @@
 static uint64_t const publish_test_threshold = 0xff00000000000000;
 static uint64_t const publish_full_threshold = 0xffffffc000000000;
 
-uint64_t nl_parse_server_work_string(char work[HEX_64]){
+uint64_t nl_parse_server_work_string(hex64_t work){
     /* Converts an ascii hex string to a uint64_t and flips the endianness.
      * This allows work to be used in local computations.*/
     uint64_t res;
@@ -20,7 +20,7 @@ uint64_t nl_parse_server_work_string(char work[HEX_64]){
     return bswap_64(res);
 }
 
-void nl_generate_server_work_string(char work[HEX_64], uint64_t nonce){
+void nl_generate_server_work_string(hex64_t work, uint64_t nonce){
     /* Inverse of nl_parse_server_work_string()*/
     nonce = bswap_64(nonce);
     sodium_bin2hex(work, HEX_64, (uint8_t *)&nonce, sizeof(nonce));

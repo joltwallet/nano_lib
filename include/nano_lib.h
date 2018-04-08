@@ -98,7 +98,7 @@ nl_err_t nl_block_free(nl_block_t *block);
 
 void nl_private_to_public(uint256_t pk, const uint256_t sk);
 void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
-        const uint32_t index);
+        uint32_t index);
 void nl_sign_detached(uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t sk, const uint256_t pk);
@@ -121,7 +121,7 @@ nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed,
 void nl_master_seed_to_nano_private_key(uint256_t private_key, 
         uint512_t master_seed, uint32_t index);
 
-uint64_t nl_parse_server_work_string(char work[HEX_64]);
-void nl_generate_server_work_string(char work[HEX_64], const uint64_t nonce);
+uint64_t nl_parse_server_work_string(hex64_t work);
+void nl_generate_server_work_string(hex64_t work, const uint64_t nonce);
 bool nl_block_pow_verify(nl_block_t *block);
 #endif
