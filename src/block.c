@@ -11,7 +11,7 @@
 static uint256_t STATE_BLOCK_PREAMBLE = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6};
 
-nl_err_t nl_block_init(nl_block_t *block){
+void nl_block_init(nl_block_t *block){
     block->type = UNDEFINED;
     sodium_memzero(block->account, sizeof(block->account));
     sodium_memzero(block->previous, sizeof(block->previous));
@@ -20,15 +20,13 @@ nl_err_t nl_block_init(nl_block_t *block){
     sodium_memzero(block->signature, sizeof(block->signature));
     sodium_memzero(block->link, sizeof(block->link));
     mbedtls_mpi_init(&(block->balance));
-    return E_SUCCESS;
 }
 
-nl_err_t nl_block_free(nl_block_t *block){
+void nl_block_free(nl_block_t *block){
     mbedtls_mpi_free(&(block->balance));
-    return E_SUCCESS;
 }
 
-static nl_err_t sign_open(nl_block_t *block, const uint256_t private_key){
+static void sign_open(nl_block_t *block, const uint256_t private_key){
     /*
      * link must contain the hash of the source block
      */
@@ -44,10 +42,9 @@ static nl_err_t sign_open(nl_block_t *block, const uint256_t private_key){
     nl_sign_detached(block->signature,
             digest, sizeof(digest),
             private_key, block->account);
-    return E_SUCCESS;
 }
 
-static nl_err_t sign_change(nl_block_t *block, const uint256_t private_key){
+static void sign_change(nl_block_t *block, const uint256_t private_key){
     /*
      */
     uint256_t digest;
@@ -61,10 +58,9 @@ static nl_err_t sign_change(nl_block_t *block, const uint256_t private_key){
     nl_sign_detached(block->signature,
             digest, sizeof(digest),
             private_key, block->account);
-    return E_SUCCESS;
 }
 
-static nl_err_t sign_receive(nl_block_t *block, const uint256_t private_key){
+static void sign_receive(nl_block_t *block, const uint256_t private_key){
     uint256_t digest;
     crypto_generichash_state state;
 
@@ -76,10 +72,9 @@ static nl_err_t sign_receive(nl_block_t *block, const uint256_t private_key){
     nl_sign_detached(block->signature,
             digest, sizeof(digest),
             private_key, block->account);
-    return E_SUCCESS;
 }
 
-static nl_err_t sign_send(nl_block_t *block, const uint256_t private_key){
+static void sign_send(nl_block_t *block, const uint256_t private_key){
     uint256_t digest;
     uint128_t balance;
     crypto_generichash_state state;
@@ -95,17 +90,15 @@ static nl_err_t sign_send(nl_block_t *block, const uint256_t private_key){
     nl_sign_detached(block->signature,
             digest, sizeof(digest),
             private_key, block->account);
-    return E_SUCCESS;
 }
 
-static nl_err_t sign_state(nl_block_t *block, const uint256_t private_key){
+static void sign_state(nl_block_t *block, const uint256_t private_key){
     uint256_t hash;
     nl_block_compute_hash(block, hash);
 
     nl_sign_detached(block->signature,
             hash, sizeof(hash),
             private_key, block->account);
-    return E_SUCCESS;
 }
 
 nl_err_t nl_block_sign(nl_block_t *block,
@@ -115,19 +108,24 @@ nl_err_t nl_block_sign(nl_block_t *block,
         case UNDEFINED:
             return E_UNDEFINED_BLOCK_TYPE;
         case STATE:
-            return sign_state(block, private_key);
+            sign_state(block, private_key);
+            break;
         case OPEN:
-            return sign_open(block, private_key);
+            sign_open(block, private_key);
+            break;
         case CHANGE:
-            return sign_change(block, private_key);
+            sign_change(block, private_key);
+            break;
         case SEND:
-            return sign_send(block, private_key);
+            sign_send(block, private_key);
+            break;
         case RECEIVE:
-            return sign_receive(block, private_key);
+            sign_receive(block, private_key);
+            break;
         default:
             return E_UNDEFINED_BLOCK_TYPE;
     }
-    return E_END_OF_FUNCTION;
+    return E_SUCCESS;
 }
 
 void nl_block_compute_hash(const nl_block_t *block, uint256_t hash){

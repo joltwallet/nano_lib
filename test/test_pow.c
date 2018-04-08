@@ -36,7 +36,7 @@ TEST_CASE("Verify PoW", "[nano_lib]"){
 
 TEST_CASE("Compute Local PoW", "[nano_lib]"){
     #if CONFIG_NANO_LIB_POW_UNIT_TEST_IGNORE
-    TEST_IGNORE_MESSAGE("Skipping Compute Local PoW Test")
+    TEST_IGNORE_MESSAGE("Skipping Compute Local PoW Test");
     #endif
 
     nl_err_t res;

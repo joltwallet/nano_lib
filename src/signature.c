@@ -55,7 +55,7 @@ void nl_sign_detached(uint512_t sig,
      * pk - Public Key
 	*/
     crypto_generichash_blake2b_state hs;
-    unsigned char az[64];
+    CONFIDENTIAL unsigned char az[64];
     unsigned char nonce[64];
     unsigned char hram[64];
     ge_p3 R;
