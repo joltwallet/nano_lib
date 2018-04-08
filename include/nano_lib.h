@@ -102,6 +102,10 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
 void nl_sign_detached(uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t sk, const uint256_t pk);
+nl_err_t nl_verify_sig_detached(const uint512_t sig,
+        const unsigned char m[], unsigned int mlen,
+        const uint256_t pk);
+
 
 nl_err_t nl_sign_block(nl_block_t *block, const uint256_t private_key);
 

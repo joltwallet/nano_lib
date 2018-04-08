@@ -91,3 +91,51 @@ void nl_sign_detached(uint512_t sig,
 
     sodium_memzero(az, sizeof az);
 }
+
+// Verify some message m
+nl_err_t nl_verify_sig_detached(const uint512_t sig,
+        const unsigned char m[], unsigned int mlen,
+        const uint256_t pk){
+	/* sig - Returned signature
+     * siglen_p - Returned signature length (can be NULL if user doesn't care)
+     * m - message to sign
+     * mlen - length of message in bytes
+     * sk - Secret Key
+     * pk - Public Key
+	*/
+    crypto_generichash_blake2b_state hs;
+    unsigned char            h[64];
+    unsigned char            rcheck[32];
+    unsigned int             i;
+    unsigned char            d = 0;
+    ge_p3                    A;
+    ge_p2                    R;
+
+    if (sig[63] & 224) {
+        return E_FAILURE;
+    }
+
+    if (ge_frombytes_negate_vartime(&A, pk) != 0) {
+        return E_FAILURE;
+    }
+    for (i = 0; i < 32; ++i) {
+        d |= pk[i];
+    }
+    if (d == 0) {
+        return E_FAILURE;
+    }
+
+    // Generate 64 bytes (512 bits) from private key into az
+    crypto_generichash_blake2b_init(&hs, NULL, 0, 64);
+    crypto_generichash_blake2b_update(&hs, sig, 32);
+    crypto_generichash_blake2b_update(&hs, pk, 32);
+    crypto_generichash_blake2b_update(&hs, m, mlen);
+    crypto_generichash_blake2b_final(&hs, h, 64);
+
+	sc_reduce(h);
+	ge_double_scalarmult_vartime(&R, h, &A, sig + 32);
+    ge_tobytes(rcheck, &R);
+
+    return crypto_verify_32(rcheck, sig) | (-(rcheck == sig)) |
+           sodium_memcmp(sig, rcheck, 32);
+}

@@ -11,7 +11,24 @@
 
 
 TEST_CASE("Verify Signature", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
+    uint256_t test_public_key_bin;
+    uint512_t test_sig_bin;
+    const char test_message[] = "Block-Lattice";
+    nl_err_t res;
+
+    sodium_hex2bin(test_public_key_bin, sizeof(test_public_key_bin), \
+            "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(test_sig_bin, sizeof(test_sig_bin), \
+            "6B0FCF86D2B04CB1919F25C76AE45C411D59F6F10768918FE6DC8F13DBB81BD2"
+            "94AF6057B635105DB8F5EA3FC612256B12EDABB548379076F4A07E8ACAAF8F05",
+            HEX_512, NULL, NULL, NULL);
+
+	res = nl_verify_sig_detached(test_sig_bin,
+        	(uint8_t *)test_message, strlen(test_message),
+			test_public_key_bin);
+
+    TEST_ASSERT_EQUAL_MESSAGE(0, res, "Rejected Valid Signature");
 }
 
 TEST_CASE("Private Key To Public Key", "[nano_lib]"){
@@ -69,7 +86,6 @@ TEST_CASE("Sign Message", "[nano_lib]"){
     uint256_t test_private_key_bin;
     uint256_t test_public_key_bin;
     const char test_message[] = "Block-Lattice";
-    nl_err_t res;
 
     sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin), \
             "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290",
