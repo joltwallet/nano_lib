@@ -9,6 +9,9 @@
 #include "nano_lib.h"
 #include "helpers.h"
 
+/* Some test vectors were sourced from:
+ * https://github.com/trezor/python-mnemonic/blob/master/vectors.json */
+
 
 TEST_CASE("BIP39/44 Wordlist Search", "[nano_lib]"){
     char word[10];
@@ -37,13 +40,9 @@ TEST_CASE("BIP39/44 Wordlist Search", "[nano_lib]"){
     strcpy(word, "1zoo");
     guess_index = nl_search_wordlist(word, strlen(word));
     TEST_ASSERT_EQUAL_INT16(-1, guess_index);
-
 }
 
 TEST_CASE("BIP39/44 Verify Mnemonic", "[nano_lib]"){
-    /* Using test vectors from:
-     * https://github.com/trezor/python-mnemonic/blob/master/vectors.json
-     */
     nl_err_t res;
 
     res = nl_verify_mnemonic(
@@ -71,13 +70,9 @@ TEST_CASE("BIP39/44 Verify Mnemonic", "[nano_lib]"){
             "hobby quick inner drive ghost ghost "
             );
     TEST_ASSERT_EQUAL_INT(E_INVALID_CHECKSUM, res);
-
 }
 
 TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){
-    /* Using test vectors from:
-     * https://github.com/trezor/python-mnemonic/blob/master/vectors.json
-     */
     CONFIDENTIAL uint256_t entropy;
     CONFIDENTIAL char buf[MNEMONIC_BUF_LEN];
     nl_err_t res;
@@ -89,7 +84,7 @@ TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){
     res = nl_entropy_to_mnemonic(buf, sizeof(buf), entropy, 128);
     sodium_memzero(entropy, sizeof(entropy));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-        "nl_entropy_to_mnemonic returned an unsuccessful code");
+            "nl_entropy_to_mnemonic returned an unsuccessful code");
     TEST_ASSERT_EQUAL_STRING("abandon abandon abandon abandon abandon abandon "
             "abandon abandon abandon abandon abandon about",
             buf);
@@ -102,7 +97,7 @@ TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){
     res = nl_entropy_to_mnemonic(buf, sizeof(buf), entropy, 128);
     sodium_memzero(entropy, sizeof(entropy));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-        "nl_entropy_to_mnemonic returned an unsuccessful code");
+            "nl_entropy_to_mnemonic returned an unsuccessful code");
     TEST_ASSERT_EQUAL_STRING(
             "legal winner thank year wave sausage worth useful legal winner "
             "thank yellow",
@@ -116,7 +111,7 @@ TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){
     res = nl_entropy_to_mnemonic(buf, sizeof(buf), entropy, 256);
     sodium_memzero(entropy, sizeof(entropy));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-        "nl_entropy_to_mnemonic returned an unsuccessful code");
+            "nl_entropy_to_mnemonic returned an unsuccessful code");
     TEST_ASSERT_EQUAL_STRING(
             "panda eyebrow bullet gorilla call smoke muffin taste mesh "
             "discover soft ostrich alcohol speed nation flash devote level "
@@ -131,7 +126,7 @@ TEST_CASE("BIP39/44 Entropy to Mnemonic", "[nano_lib]"){
     res = nl_entropy_to_mnemonic(buf, sizeof(buf), entropy, 256);
     sodium_memzero(entropy, sizeof(entropy));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-        "nl_entropy_to_mnemonic returned an unsuccessful code");
+            "nl_entropy_to_mnemonic returned an unsuccessful code");
     TEST_ASSERT_EQUAL_STRING(
             "void come effort suffer camp survey warrior heavy shoot primary "
             "clutch crush open amazing screen patrol group space point ten "
@@ -160,6 +155,8 @@ TEST_CASE("BIP39/44 Mnemonic To Master Seed", "[nano_lib]"){
     sodium_bin2hex(guess_master_seed_hex, sizeof(guess_master_seed_hex),
             guess_master_seed_bin, sizeof(guess_master_seed_bin));
     sodium_memzero(guess_master_seed_bin, sizeof(guess_master_seed_bin));
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+            "nl_mnemonic_to_master_seed returned an unsuccessful code");
     TEST_ASSERT_EQUAL_STRING(
             "c55257c360c07c72029aebc1b53c05ed0362ada38ead3e3e9efa3708e5349553"
             "1f09a6987599d18264c1e1c92f2cf141630c7a3c4ab7c81b2f001698e7463b04",

@@ -96,10 +96,10 @@ nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]);
 nl_err_t nl_block_init(nl_block_t *block);
 nl_err_t nl_block_free(nl_block_t *block);
 
-int nl_private_to_public(uint256_t pk, const uint256_t sk);
+void nl_private_to_public(uint256_t pk, const uint256_t sk);
 void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
         const uint32_t index);
-int nl_sign_detached(uint512_t sig,
+void nl_sign_detached(uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t sk, const uint256_t pk);
 

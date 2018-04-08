@@ -37,15 +37,18 @@ TEST_CASE("Private Key To Public Key", "[nano_lib]"){
 
 TEST_CASE("Seed To Private Key", "[nano_lib]"){
     uint256_t test_seed_bin;
-    uint256_t guess_private_key_bin;
-    hex256_t guess_private_key_hex;
+    CONFIDENTIAL uint256_t guess_private_key_bin;
+    CONFIDENTIAL hex256_t guess_private_key_hex;
+    nl_err_t res;
 
     sodium_hex2bin(test_seed_bin, sizeof(test_seed_bin), \
             "1A620665F60713F867D7D7F77BA337360B303C8C3C94E84819C4E282B6EAC262",
             HEX_256, NULL, NULL, NULL);
 
     /* Test Index 0 */
-    nl_seed_to_private(guess_private_key_bin, test_seed_bin, 0);
+    res = nl_seed_to_private(guess_private_key_bin, test_seed_bin, 0);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+            "nl_seed_to_private returned an unsuccessful code");
     sodium_bin2hex(guess_private_key_hex, sizeof(guess_private_key_hex),
             guess_private_key_bin, sizeof(guess_private_key_bin));
     strupper(guess_private_key_hex);
@@ -54,23 +57,27 @@ TEST_CASE("Seed To Private Key", "[nano_lib]"){
             guess_private_key_hex);
 
     /* Test Index 1 */
-    nl_seed_to_private(guess_private_key_bin, test_seed_bin, 1);
+    res = nl_seed_to_private(guess_private_key_bin, test_seed_bin, 1);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+            "nl_seed_to_private returned an unsuccessful code");
     sodium_bin2hex(guess_private_key_hex, sizeof(guess_private_key_hex),
             guess_private_key_bin, sizeof(guess_private_key_bin));
     strupper(guess_private_key_hex);
     TEST_ASSERT_EQUAL_STRING(
             "18E8AC0BD5EFB59BF047A32A2E501D3FDB97D7439D91BD1D53F49FFE54E1F92E",
             guess_private_key_hex);
+
+    sodium_memzero(guess_private_key_bin, sizeof(guess_private_key_bin));
+    sodium_memzero(guess_private_key_hex, sizeof(guess_private_key_hex));
 }
 
 TEST_CASE("Sign Message", "[nano_lib]"){
-    // todo: verify the test case
-    int res;
     uint512_t guess_sig_bin;
     hex512_t guess_sig_hex;
     uint256_t test_private_key_bin;
     uint256_t test_public_key_bin;
     const char test_message[] = "Block-Lattice";
+    nl_err_t res;
 
     sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin), \
             "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290",
@@ -79,12 +86,9 @@ TEST_CASE("Sign Message", "[nano_lib]"){
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
             HEX_256, NULL, NULL, NULL);
 
-    res = nl_sign_detached(guess_sig_bin,
+    nl_sign_detached(guess_sig_bin,
             (unsigned char *) test_message, strlen(test_message), 
             test_private_key_bin, test_public_key_bin);
-    if(res != 0){
-        TEST_FAIL_MESSAGE("nl_sign_detached returned an unsuccessful code");
-    }
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             guess_sig_bin, sizeof(guess_sig_bin));
     strupper(guess_sig_hex);

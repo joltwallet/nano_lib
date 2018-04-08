@@ -10,7 +10,7 @@
 #include "helpers.h"
 
 // Derives Nano Public Key from Private Key
-int nl_private_to_public(uint256_t pk, const uint256_t sk) {  
+void nl_private_to_public(uint256_t pk, const uint256_t sk) {  
     ge_p3 A;
     
     uint512_t hash;
@@ -25,8 +25,6 @@ int nl_private_to_public(uint256_t pk, const uint256_t sk) {
   
     ge_scalarmult_base(&A, hash);
     ge_p3_tobytes(pk, &A);
-
-    return 0;
 }
 
 // Derive Nano Private Key From Seed and Index
@@ -47,7 +45,7 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
 }
 
 // Sign some message m
-int nl_sign_detached(uint512_t sig,
+void nl_sign_detached(uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t sk, const uint256_t pk){
 	/* sig - Returned signature
@@ -92,6 +90,4 @@ int nl_sign_detached(uint512_t sig,
     sc_muladd(sig + 32, hram, az, nonce);
 
     sodium_memzero(az, sizeof az);
-
-    return 0;
 }

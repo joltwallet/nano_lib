@@ -20,7 +20,6 @@ TEST_CASE("Public Address To Public Key", "[nano_lib]"){
             "xrb_1t8kstkoa85xux6b5roxryoqaiqk84m731m6co1ja1fn5upbqubj34osorm9");
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
         "nl_address_to_public returned an unsuccessful code");
-
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
     strupper(guess_public_key_hex);
