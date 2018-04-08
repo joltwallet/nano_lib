@@ -184,7 +184,7 @@ TEST_CASE("BIP39/44 Mnemonic To Master Seed", "[nano_lib]"){
 
 }
 
-TEST_CASE("Mnemonic to Nano Seed", "[nano_lib]"){
+TEST_CASE("Mnemonic to Nano Private Key", "[nano_lib]"){
     /* Use's Roosmaa's BIP39 Demo as reference for test case 
      * https://github.com/roosmaa/nano-bip39-demo */
     // "edge defense waste choose enrich upon flee junk siren film clown finish luggage leader kid quick brick print evidence swap drill paddle truly occur" -password "some password" -path "44'/165'/0'"
@@ -195,9 +195,6 @@ TEST_CASE("Mnemonic to Nano Seed", "[nano_lib]"){
     CONFIDENTIAL uint512_t guess_master_seed_bin;
     CONFIDENTIAL hex512_t guess_master_seed_hex;
 
-    CONFIDENTIAL uint256_t guess_nano_seed_bin;
-    CONFIDENTIAL hex256_t guess_nano_seed_hex;
-
     CONFIDENTIAL uint256_t guess_private_key_bin;
     CONFIDENTIAL hex256_t guess_private_key_hex;
 
@@ -206,6 +203,7 @@ TEST_CASE("Mnemonic to Nano Seed", "[nano_lib]"){
 
     CONFIDENTIAL char guess_address[ADDRESS_BUF_LEN];
 
+    /* Derive Master Seed */
     nl_mnemonic_to_master_seed(guess_master_seed_bin, 
             "edge defense waste choose enrich upon flee junk siren film clown "
             "finish luggage leader kid quick brick print evidence swap drill "
@@ -218,16 +216,18 @@ TEST_CASE("Mnemonic to Nano Seed", "[nano_lib]"){
             "4a914d3c71fc099bb38ee4a59e5b081a3497b7a323e90cc68f67b5837690310c",
             guess_master_seed_hex);
 
-
-    nl_master_seed_to_nano_seed(guess_nano_seed_bin, guess_master_seed_bin);
-    sodium_bin2hex(guess_nano_seed_hex, sizeof(guess_nano_seed_hex),
-            guess_nano_seed_bin, sizeof(guess_nano_seed_bin));
-    strlower(guess_nano_seed_hex);
-    TEST_ASSERT_EQUAL_STRING( // private key according to roosmaa
+    /* Derive Nano Private Key */
+    nl_master_seed_to_nano_private_key(guess_private_key_bin, 
+            guess_master_seed_bin, 0);
+    sodium_bin2hex(guess_private_key_hex, sizeof(guess_private_key_hex),
+            guess_private_key_bin, sizeof(guess_private_key_bin));
+    strlower(guess_private_key_hex);
+    TEST_ASSERT_EQUAL_STRING(
             "3be4fc2ef3f3b7374e6fc4fb6e7bb153f8a2998b3b3dab50853eabe128024143",
-            guess_nano_seed_hex);
+            guess_private_key_hex);
     
-    nl_private_to_public(guess_public_key_bin, guess_nano_seed_bin); 
+    /* Derive Nano Public Key */
+    nl_private_to_public(guess_public_key_bin, guess_private_key_bin); 
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
     strlower(guess_public_key_hex);
@@ -235,12 +235,12 @@ TEST_CASE("Mnemonic to Nano Seed", "[nano_lib]"){
             "5b65b0e8173ee0802c2c3e6c9080d1a16b06de1176c938a924f58670904e82c4",
             guess_public_key_hex);
 
+    /* Translate Public Key to Address */
     nl_public_to_address(guess_address, sizeof(guess_address),
             guess_public_key_bin);
     strlower(guess_address);
     TEST_ASSERT_EQUAL_STRING(
             "xrb_1pu7p5n3ghq1i1p4rhmek41f5add1uh34xpb94nkbxe8g4a6x1p69emk8y1d",
             guess_address);
-
 }
 

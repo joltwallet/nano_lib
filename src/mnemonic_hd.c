@@ -10,55 +10,68 @@
 #include "bip39_en.h"
 
 #define BITS_PER_WORD 11
+#define HARDENED 0x80000000
+
+typedef struct hd_node_t {
+    uint256_t key;
+    uint256_t chain_code;
+} hd_node_t;
+
+static void hd_node_copy(hd_node_t *dst, const hd_node_t *src){
+    memcpy(dst->key, src->key, sizeof(src->key));
+    memcpy(dst->chain_code, src->chain_code, sizeof(src->chain_code));
+}
+
+static void hd_node_init(hd_node_t *node, const uint512_t master_seed, const char *key){
+    /* key - null-terminated string. Typically "ed25519 seed" or "Bitcoin Seed" */
+    CONFIDENTIAL uint512_t digest;
+    CONFIDENTIAL crypto_auth_hmacsha512_state state;
+
+    crypto_auth_hmacsha512_init(&state, (uint8_t *)key, strlen(key));
+    crypto_auth_hmacsha512_update(&state, master_seed, BIN_512);
+    crypto_auth_hmacsha512_final(&state, digest);
+
+    memcpy(node->key, digest, 32);
+    memcpy(node->chain_code, digest + 32, 32);
+
+    sodium_memzero(digest, sizeof(digest));
+    sodium_memzero(&state, sizeof(state));
+}
+
+static void hd_node_iterate_hardened(hd_node_t *node, uint32_t val){
+    /* Overwrites node values according to val */
+    CONFIDENTIAL uint512_t digest;
+    CONFIDENTIAL crypto_auth_hmacsha512_state state;
+    unsigned char data[1+32+4] = {0};
+
+    memcpy(data+1, node->key, sizeof(node->key));
+    memcpy(data+1+32, node->chain_code, sizeof(node->chain_code));
+	write_be(data+1+32, val | HARDENED);
+
+    crypto_auth_hmacsha512_init(&state, node->chain_code, sizeof(node->chain_code));
+    crypto_auth_hmacsha512_update(&state, data, sizeof(data));
+    crypto_auth_hmacsha512_final(&state, digest);
+
+    memcpy(node->key, digest, 32);
+    memcpy(node->chain_code, digest + 32, 32);
+
+    sodium_memzero(digest, sizeof(digest));
+    sodium_memzero(&state, sizeof(state));
+}
 
 #define DERIVATION_PURPOSE 44
 //#define BIP32_KEY "Bitcoin seed"
 #define BIP32_KEY "ed25519 seed"
-#define HARDENED 0x80000000
+void nl_master_seed_to_nano_private_key(uint256_t private_key, 
+        uint512_t master_seed, uint32_t index){
+    CONFIDENTIAL hd_node_t node;
+    hd_node_init(&node, master_seed, BIP32_KEY);
+    hd_node_iterate_hardened(&node, DERIVATION_PURPOSE);
+    hd_node_iterate_hardened(&node, CONFIG_NANO_LIB_DERIVATION_PATH);
+    hd_node_iterate_hardened(&node, index);
 
-void nl_master_seed_to_nano_seed(uint256_t nano_seed, uint512_t master_seed){
-    /* Derives hardened private key for coin_type and account.
-     * For Nano, coin_type is 165 and account should always be 0 since we
-     * will use the "private key" as a Nano Seed and further derive accounts
-     * from it.
-     */
-    uint512_t digest;
-    unsigned char data[1+32+4] = {0};
-    crypto_auth_hmacsha512_state state;
-    uint32_t code_index;// = CONFIG_NANO_LIB_DERIVATION_PATH | HARDENED;
-
-    crypto_auth_hmacsha512_init(&state, (uint8_t *)BIP32_KEY, strlen(BIP32_KEY));
-    crypto_auth_hmacsha512_update(&state, master_seed, BIN_512);
-    crypto_auth_hmacsha512_final(&state, digest);
-
-    memcpy(data+1, digest, 32);
-    code_index = 44 | HARDENED;
-	write_be(data+1+32, code_index);
-
-    crypto_auth_hmacsha512_init(&state, digest+32, 32);
-    crypto_auth_hmacsha512_update(&state, data, sizeof(data));
-    crypto_auth_hmacsha512_final(&state, digest);
-
-    memcpy(data+1, digest, 32);
-    code_index = CONFIG_NANO_LIB_DERIVATION_PATH | HARDENED;
-	write_be(data+1+32, code_index);
-
-    crypto_auth_hmacsha512_init(&state, digest+32, 32);
-    crypto_auth_hmacsha512_update(&state, data, sizeof(data));
-    crypto_auth_hmacsha512_final(&state, digest);
-
-    memcpy(data+1, digest, 32);
-    code_index = 0 | HARDENED;
-	write_be(data+1+32, code_index);
-
-    crypto_auth_hmacsha512_init(&state, digest+32, 32);
-    crypto_auth_hmacsha512_update(&state, data, sizeof(data));
-    crypto_auth_hmacsha512_final(&state, digest);
-
-    memcpy(nano_seed, digest, 32);
-    sodium_memzero(digest, sizeof(digest));
-    sodium_memzero(&state, sizeof(state));
-    sodium_memzero(&data, sizeof(data));
+    memcpy(private_key, node.key, sizeof(node.key));
+    sodium_memzero(&node, sizeof(node));
 }
 
 static void pbkdf2_hmac_sha512(const uint8_t *passwd, size_t passwdlen, 
@@ -68,6 +81,8 @@ static void pbkdf2_hmac_sha512(const uint8_t *passwd, size_t passwdlen,
      * c - number of iterations
      * buf - stores the derived key 
      * dkLen - derived key length in bits
+     *
+     * Based on the pbkdf2 sha256 code in libsodium
      */
     crypto_auth_hmacsha512_state PShctx, hctx;
     size_t                       i;

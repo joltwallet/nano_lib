@@ -118,7 +118,8 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
 nl_err_t nl_verify_mnemonic(const char mnemonic[]);
 nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed, 
         const char mnemonic[], const char passphrase[]);
-void nl_master_seed_to_nano_seed(uint256_t nano_seed, uint512_t master_seed);
+void nl_master_seed_to_nano_private_key(uint256_t private_key, 
+        uint512_t master_seed, uint32_t index);
 
 
 #endif
