@@ -108,6 +108,7 @@ nl_err_t nl_verify_sig_detached(const uint512_t sig,
 
 
 nl_err_t nl_sign_block(nl_block_t *block, const uint256_t private_key);
+void nl_compute_block_hash(const nl_block_t *block, uint256_t hash);
 
 
 int16_t nl_search_wordlist(char *word, uint8_t word_len);

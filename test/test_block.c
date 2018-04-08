@@ -10,8 +10,38 @@
 #include "helpers.h"
 
 
-TEST_CASE("Verify Hash", "[nano_lib]"){
-    TEST_IGNORE_MESSAGE("Not Implemented");
+TEST_CASE("Verify Block Hash", "[nano_lib]"){
+    uint256_t guess_hash_bin;
+    hex256_t guess_hash_hex;
+    nl_block_t block;
+
+    nl_block_init(&block);
+    block.type = STATE;
+    sodium_hex2bin(block.account, sizeof(block.account),
+            "C1CD33D62CC72FAC1294C990D4DD2B02A4DB85D42F220C48C13AF288FB21D4C1",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(block.previous, sizeof(block.previous),
+            "FC5A7FB777110A858052468D448B2DF22B648943C097C0608D1E2341007438B0",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(block.link, sizeof(block.link),
+            "B2EC73C1F503F47E051AD72ECB512C63BA8E1A0ACC2CEE4EA9A22FE1CBDB693F",
+            HEX_256, NULL, NULL, NULL);
+    nl_address_to_public(block.representative,
+            "xrb_3p1asma84n8k84joneka776q4egm5wwru3suho9wjsfyuem8j95b3c78nw8j");
+    sodium_hex2bin(block.work, sizeof(block.work),
+            "677d7dcc1e358b37", HEX_64, NULL, NULL, NULL);
+    mbedtls_mpi_read_string(&(block.balance), 10,
+            "5000000000000000000000000000001");
+
+    nl_compute_block_hash(&block, guess_hash_bin);
+    nl_block_free(&block);
+
+    sodium_bin2hex(guess_hash_hex, sizeof(guess_hash_hex),
+            guess_hash_bin, sizeof(guess_hash_bin));
+    strupper(guess_hash_hex);
+    TEST_ASSERT_EQUAL_STRING(
+            "597395E83BD04DF8EF30AF04234EAAFE0606A883CF4AEAD2DB8196AAF5C4444F",
+            guess_hash_hex);
 }
 
 TEST_CASE("Sign State Block", "[nano_lib]"){
