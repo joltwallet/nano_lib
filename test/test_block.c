@@ -180,7 +180,7 @@ TEST_CASE("Sign Receive Block", "[nano_lib]"){
             guess_sig_hex);
     nl_block_free(&block);
 
-    // Hash of this send block:
+    // Hash of this receive block:
     // "hash": "AB67B959665FD6CE8B947196E8B0D00DE5D07FA38BE0938966530226D7F52446"
 }
 
