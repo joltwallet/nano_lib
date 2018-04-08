@@ -16,6 +16,7 @@ TEST_CASE("Verify Signature", "[nano_lib]"){
     const char test_message[] = "Block-Lattice";
     nl_err_t res;
 
+    /* Test 1 */
     sodium_hex2bin(test_public_key_bin, sizeof(test_public_key_bin), \
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
             HEX_256, NULL, NULL, NULL);
@@ -28,7 +29,23 @@ TEST_CASE("Verify Signature", "[nano_lib]"){
         	(uint8_t *)test_message, strlen(test_message),
 			test_public_key_bin);
 
-    TEST_ASSERT_EQUAL_MESSAGE(0, res, "Rejected Valid Signature");
+    TEST_ASSERT_EQUAL_MESSAGE(E_SUCCESS, res, "Rejected Valid Signature");
+
+    /* Test 2 */
+    sodium_hex2bin(test_public_key_bin, sizeof(test_public_key_bin), \
+            "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
+            HEX_256, NULL, NULL, NULL);
+    sodium_hex2bin(test_sig_bin, sizeof(test_sig_bin), \
+            "6B0FCF86D2B04CB1919F25C76AE45C411D59F6F10768918FE6DC8F13DBB81BD2"
+            "94AF6057B635105DB8F5EA3FC612256B12EDABB548379076F4A07E8ACAAF8F06",
+            HEX_512, NULL, NULL, NULL);
+
+	res = nl_verify_sig_detached(test_sig_bin,
+        	(uint8_t *)test_message, strlen(test_message),
+			test_public_key_bin);
+
+    TEST_ASSERT_EQUAL_MESSAGE(E_FAILURE, -res, "Accepted Invalid Signature");
+
 }
 
 TEST_CASE("Private Key To Public Key", "[nano_lib]"){
