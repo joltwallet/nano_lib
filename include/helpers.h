@@ -6,7 +6,7 @@ void strnupper(char *s, const int n);
 void strlower(char *s);
 void strnlower(char *s, const int n);
 
-void int_to_char_array(unsigned char *char_arr, uint32_t data);
+void write_be(uint8_t *data, uint32_t x);
 void nl_generate_seed(uint256_t seed_bin);
 
 #endif

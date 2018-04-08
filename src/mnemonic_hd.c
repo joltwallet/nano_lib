@@ -16,13 +16,6 @@
 #define BIP32_KEY "ed25519 seed"
 #define HARDENED 0x80000000
 
-inline void write_be(uint8_t *data, uint32_t x)
-{
-	data[0] = x >> 24;
-	data[1] = x >> 16;
-	data[2] = x >> 8;
-	data[3] = x;
-}
 void nl_master_seed_to_nano_seed(uint256_t nano_seed, uint512_t master_seed){
     /* Derives hardened private key for coin_type and account.
      * For Nano, coin_type is 165 and account should always be 0 since we

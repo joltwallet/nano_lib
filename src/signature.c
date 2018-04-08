@@ -32,7 +32,8 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
         const uint32_t index){
     // Derives the private key from seed at index
     unsigned char index_array[4] = {0};
-    int_to_char_array(index_array, index);
+    write_be(index_array, index);
+    //int_to_char_array(index_array, index);
 
     crypto_generichash_state state;
 

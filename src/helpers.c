@@ -43,13 +43,12 @@ void strnlower(char *s, const int n){
     }
 }
 
-void int_to_char_array(unsigned char *char_arr, uint32_t data){
-    // Converts an int into a char array of 32 bits
-    for(int i=3; i>=0; i--){
-        char_arr[i] = data & 0xFF;
-        data >>= 8;
-    }
-    sodium_memzero(&data, sizeof(data));
+void write_be(uint8_t *data, uint32_t x){
+	data[0] = x >> 24;
+	data[1] = x >> 16;
+	data[2] = x >> 8;
+	data[3] = x;
+    sodium_memzero(&x, sizeof(x));
 }
 
 void nl_generate_seed(uint256_t seed_bin){
@@ -58,7 +57,7 @@ void nl_generate_seed(uint256_t seed_bin){
 
     for(uint8_t i=0; i<8; i++){
         rand_buffer = randombytes_random();
-        int_to_char_array(seed_bin + 4*i, rand_buffer);
+        memcpy(seed_bin + 4*i, &rand_buffer, sizeof(rand_buffer));
     }
     sodium_memzero(&rand_buffer, sizeof(rand_buffer));
 }
