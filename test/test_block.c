@@ -32,7 +32,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
     mbedtls_mpi_read_string(&(block.balance), 10,
             "5000000000000000000000000000001");
 
-    nl_compute_block_hash(&block, guess_hash_bin);
+    nl_block_compute_hash(&block, guess_hash_bin);
     nl_block_free(&block);
 
     sodium_bin2hex(guess_hash_hex, sizeof(guess_hash_hex),
@@ -71,9 +71,9 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
     mbedtls_mpi_read_string(&(block.balance), 10,
             "5000000000000000000000000000001");
 
-    res = nl_sign_block(&block, test_private_key_bin);
+    res = nl_block_sign(&block, test_private_key_bin);
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_sign_block returned an unsuccessful code");
+            "nl_block_sign returned an unsuccessful code");
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));
@@ -121,9 +121,9 @@ TEST_CASE("Sign Send Block", "[nano_lib]"){
     // Subtract Transaction Amount from the Original Amount
     mbedtls_mpi_sub_mpi(&(block.balance), &(block.balance), &transaction_amount);
 
-    res = nl_sign_block(&block, test_private_key_bin);
+    res = nl_block_sign(&block, test_private_key_bin);
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_sign_block returned an unsuccessful code");
+            "nl_block_sign returned an unsuccessful code");
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));
@@ -163,9 +163,9 @@ TEST_CASE("Sign Receive Block", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
     block.work = nl_parse_server_work_string("f22c729331e5efb3");
 
-    res = nl_sign_block(&block, test_private_key_bin);
+    res = nl_block_sign(&block, test_private_key_bin);
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_sign_block returned an unsuccessful code");
+            "nl_block_sign returned an unsuccessful code");
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));
@@ -203,9 +203,9 @@ TEST_CASE("Sign Change Block", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
     block.work = nl_parse_server_work_string("3a74e84a07e6837c");
 
-    res = nl_sign_block(&block, test_private_key_bin);
+    res = nl_block_sign(&block, test_private_key_bin);
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_sign_block returned an unsuccessful code");
+            "nl_block_sign returned an unsuccessful code");
 
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
@@ -244,9 +244,9 @@ TEST_CASE("Sign Open Block", "[nano_lib]"){
             "BA5920AF3B105AB472DDD31100000F3952BA1BACCC4212874219064538BADFAA",
             HEX_256, NULL, NULL, NULL);
 
-    res = nl_sign_block(&block, test_private_key_bin);
+    res = nl_block_sign(&block, test_private_key_bin);
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
-            "nl_sign_block returned an unsuccessful code");
+            "nl_block_sign returned an unsuccessful code");
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));

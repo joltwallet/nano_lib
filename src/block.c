@@ -100,7 +100,7 @@ static nl_err_t sign_send(nl_block_t *block, const uint256_t private_key){
 
 static nl_err_t sign_state(nl_block_t *block, const uint256_t private_key){
     uint256_t hash;
-    nl_compute_block_hash(block, hash);
+    nl_block_compute_hash(block, hash);
 
     nl_sign_detached(block->signature,
             hash, sizeof(hash),
@@ -108,7 +108,7 @@ static nl_err_t sign_state(nl_block_t *block, const uint256_t private_key){
     return E_SUCCESS;
 }
 
-nl_err_t nl_sign_block(nl_block_t *block,
+nl_err_t nl_block_sign(nl_block_t *block,
         const uint256_t private_key){
     // Todo; test private key
     switch(block->type){
@@ -130,7 +130,7 @@ nl_err_t nl_sign_block(nl_block_t *block,
     return E_END_OF_FUNCTION;
 }
 
-void nl_compute_block_hash(const nl_block_t *block, uint256_t hash){
+void nl_block_compute_hash(const nl_block_t *block, uint256_t hash){
     crypto_generichash_state state;
     uint128_t balance;
 
