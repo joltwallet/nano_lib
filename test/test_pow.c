@@ -12,6 +12,7 @@
 #include "helpers.h"
 
 TEST_CASE("Verify PoW", "[nano_lib]"){
+    /* Note that nl_pow_verify returns 0 (False, E_SUCCESS) on Success */
     nl_err_t res;
     uint256_t previous;
     uint64_t work;
@@ -31,7 +32,6 @@ TEST_CASE("Verify PoW", "[nano_lib]"){
     work = nl_parse_server_work_string("677d7dcc1e358b38");
     res = nl_pow_verify(previous, work);
     TEST_ASSERT_TRUE(res);
-
 }
 
 TEST_CASE("Compute Local PoW", "[nano_lib]"){

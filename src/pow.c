@@ -48,7 +48,6 @@ bool nl_pow_verify(uint256_t hash, uint64_t nonce){
 	return pow_output (hash, nonce) < publish_full_threshold;
 }
 
-
 uint64_t nl_compute_local_pow(uint256_t hash){
     // This will only fill up 32-bits of nonce; but its just a non-crtical
     // random starting point
