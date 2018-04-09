@@ -93,8 +93,8 @@ static const uint8_t const BASE32_TABLE[] = {
 nl_err_t nl_public_to_address(char address_buf[], uint8_t address_buf_len, const uint256_t public_key);
 nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]);
 
-nl_err_t nl_block_init(nl_block_t *block);
-nl_err_t nl_block_free(nl_block_t *block);
+void nl_block_init(nl_block_t *block);
+void nl_block_free(nl_block_t *block);
 
 void nl_private_to_public(uint256_t pk, const uint256_t sk);
 void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
@@ -108,7 +108,7 @@ nl_err_t nl_verify_sig_detached(const uint512_t sig,
 
 
 nl_err_t nl_block_sign(nl_block_t *block, const uint256_t private_key);
-void nl_block_compute_hash(const nl_block_t *block, uint256_t hash);
+nl_err_t nl_block_compute_hash(const nl_block_t *block, uint256_t hash);
 
 
 int16_t nl_search_wordlist(char *word, uint8_t word_len);
