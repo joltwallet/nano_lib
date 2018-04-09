@@ -45,7 +45,6 @@ TEST_CASE("Verify Signature", "[nano_lib]"){
 			test_public_key_bin);
 
     TEST_ASSERT_EQUAL_MESSAGE(E_FAILURE, -res, "Accepted Invalid Signature");
-
 }
 
 TEST_CASE("Private Key To Public Key", "[nano_lib]"){
