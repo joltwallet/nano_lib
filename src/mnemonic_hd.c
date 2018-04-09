@@ -24,7 +24,8 @@ static void hd_node_copy(hd_node_t *dst, const hd_node_t *src){
 }
 #endif
 
-static void hd_node_init(hd_node_t *node, const uint512_t master_seed, const char *key){
+static void hd_node_init(hd_node_t *node, const uint512_t master_seed, 
+        const char *key){
     /* key - null-terminated string. Typically "ed25519 seed" or "Bitcoin Seed" */
     CONFIDENTIAL uint512_t digest;
     CONFIDENTIAL crypto_auth_hmacsha512_state state;
@@ -71,8 +72,11 @@ void nl_master_seed_to_nano_private_key(uint256_t private_key,
         uint512_t master_seed, uint32_t index){
     CONFIDENTIAL hd_node_t node;
     hd_node_init(&node, master_seed, BIP32_KEY);
+    // 44'
     hd_node_iterate_hardened(&node, DERIVATION_PURPOSE);
+    // 44'/165'
     hd_node_iterate_hardened(&node, CONFIG_NANO_LIB_DERIVATION_PATH);
+    // 44'/165'/0'
     hd_node_iterate_hardened(&node, index);
 
     memcpy(private_key, node.key, sizeof(node.key));
@@ -89,11 +93,12 @@ static void pbkdf2_hmac_sha512(const uint8_t *passwd, size_t passwdlen,
      *
      * Based on the pbkdf2 sha256 code in libsodium
      */
-    crypto_auth_hmacsha512_state PShctx, hctx;
+    CONFIDENTIAL crypto_auth_hmacsha512_state PShctx;
+    crypto_auth_hmacsha512_state hctx;
     size_t                       i;
     uint8_t                      ivec[4];
-    uint8_t                      U[crypto_auth_hmacsha512_BYTES];
-    uint8_t                      T[crypto_auth_hmacsha512_BYTES];
+    CONFIDENTIAL uint8_t         U[crypto_auth_hmacsha512_BYTES];
+    CONFIDENTIAL uint8_t         T[crypto_auth_hmacsha512_BYTES];
     uint64_t                     j;
     int                          k;
     size_t                       clen;
@@ -127,8 +132,9 @@ static void pbkdf2_hmac_sha512(const uint8_t *passwd, size_t passwdlen,
         memcpy(&buf[i * crypto_auth_hmacsha512_BYTES], T, clen);
     }
     sodium_memzero((void *) &PShctx, sizeof PShctx);
+    sodium_memzero(U, sizeof(U));
+    sodium_memzero(T, sizeof(T));
 }
-
 
 nl_err_t nl_mnemonic_generate(char buf[], uint16_t buf_len, uint16_t strength){
     /* Strength in bits */
@@ -146,12 +152,13 @@ nl_err_t nl_mnemonic_generate(char buf[], uint16_t buf_len, uint16_t strength){
 nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
         const uint256_t entropy, const uint16_t strength){
     /* Strength in bits 
-     * Buf will contain a space separated mnemonic list according to 
-     * strength*/
+     * Sets Buf to a space separated mnemonic string with length according to 
+     * strength. This mnemonic string is derived from the 256-bit entropy. */
     if(strength % 32 || strength < 128 || strength > 256){
         return E_INVALID_STRENGTH;
     }
-    // Generate Checksum
+
+    /* Generate Checksum */
     uint8_t entropy_len = strength / 8;
 	uint8_t m_len = entropy_len * 3 / 4; //number of mnemonic words
     CONFIDENTIAL unsigned char cs_entropy[sizeof(uint256_t) + 1];
@@ -160,12 +167,11 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
 		return E_INSUFFICIENT_BUF;
 	}
 
-    // Make checksummed entropy first entropy_len bits be entropy, remaining
+    // Make cs_entropy first entropy_len bits be entropy, remaining
     // bits (up to 8 needed) be the first bits from the sha256 hash
     crypto_hash_sha256(cs_entropy, entropy, entropy_len);
     cs_entropy[entropy_len] = cs_entropy[0];
     memcpy(cs_entropy, entropy, entropy_len);
-    
 
 	CONFIDENTIAL uint16_t list_idx;
     uint8_t i, j;
@@ -191,7 +197,9 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
 }
 
 int16_t nl_search_wordlist(char *word, uint8_t word_len){
-    /* Returns the index of the word that starts with parameter word.
+    /* Performs binary search on the wordlist
+     *
+     * Returns the index of the word that starts with parameter word.
      * Returns -1 if word is not found
      */
     uint8_t i_letter;
@@ -211,6 +219,7 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len){
             }
             else{
                 if(i_letter == word_len-1){
+                    sodium_memzero(&i_letter, sizeof(i_letter));
                     return index;
                 }
                 continue;
@@ -261,8 +270,9 @@ static uint8_t get_word_count(const char *str){
 }
 
 nl_err_t nl_verify_mnemonic(const char mnemonic[]){
-    /* null terminated mnemonic string.
-     * Performs binary search for the string on the bip39 wordlist
+    /* Expects a null-terminated mnemonic string.
+     * The mnemonic can have arbitrary whitespace leading, trailing, and
+     * between workds
      */
     int8_t j;
     uint8_t m_len, i_word, current_word_len;
@@ -311,27 +321,47 @@ nl_err_t nl_verify_mnemonic(const char mnemonic[]){
 
 nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed, 
         const char mnemonic[], const char passphrase[]){
-    /* Currently requires mnemonic to have nothing unusual such as:
-     *  * Leading or Trailing Spaces
-     *  * multiple spaces between words
-     *  * other characters like \n or \t
-     * mnemonic must be a null terminated string.
-     * passphrase must be a null terminated string. Up to blah bytes.
+    /* mnemonic must be a null terminated string.
+     * passphrase must be a null terminated string. Up to PASSPHRASE_BUF_LEN bytes
      * It is recommended to verify the mnemonic before calling this function.
      */
-    CONFIDENTIAL char *salt = malloc(8+strlen(passphrase)+1);
-    if (salt == NULL){
-        return E_UNABLE_ALLOCATE_MEM;
+    /* Filter the input mnemonic */
+    CONFIDENTIAL char salt[8+PASSPHRASE_BUF_LEN+1];
+    CONFIDENTIAL char clean_mnemonic[MNEMONIC_BUF_LEN];
+    uint8_t m_len;
+    uint8_t word_len;
+    char *word_ptr;
+    char *m_ptr;
+
+    if(strlen(passphrase) > PASSPHRASE_BUF_LEN){
+        return E_INSUFFICIENT_BUF;
     }
+
+    m_len = get_word_count(mnemonic);
+    if (m_len!=12 && m_len!=18 && m_len!=24){
+        return E_INVALID_MNEMONIC_LEN;
+    }
+
+    /* Filter out extra whitespace in mnemonic*/
+    m_ptr = clean_mnemonic;
+    for(uint8_t i=0; i<m_len; i++, m_ptr++){
+        word_len = get_word_len(&word_ptr, mnemonic);
+        mnemonic = word_ptr + word_len;
+        memcpy(m_ptr, word_ptr, word_len);
+        m_ptr += word_len;
+        *m_ptr = ' ';
+    }
+    *(m_ptr-1) = '\0';
+
     memcpy(salt, "mnemonic", 8);
     strcpy(salt + 8, passphrase);
     printf("salt: %s\n", salt);
 	pbkdf2_hmac_sha512(
-            (uint8_t *) mnemonic, strlen(mnemonic), 
+            (uint8_t *) clean_mnemonic, strlen(clean_mnemonic), 
 			(uint8_t *) salt, strlen(salt),
             (uint8_t *) master_seed, sizeof(uint512_t),
 			2048);
     sodium_memzero(salt, strlen(salt));
-    free(salt);
+    sodium_memzero(clean_mnemonic, strlen(clean_mnemonic));
     return E_SUCCESS;
 }

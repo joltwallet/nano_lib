@@ -167,9 +167,9 @@ TEST_CASE("BIP39/44 Mnemonic To Master Seed", "[nano_lib]"){
 
     /* Test 2 */
     res = nl_mnemonic_to_master_seed(guess_master_seed_bin, 
-            "hamster diagram private dutch cause delay private meat slide "
-            "toddler razor book happy fancy gospel tennis maple dilemma "
-            "loan word shrug inflict delay length",
+            " hamster diagram private dutch      cause delay private meat slide "
+            "toddler\nrazor\t book happy fancy gospel tennis maple dilemma "
+            "loan word    shrug inflict delay length   \n\t\n",
             "TREZOR");
     sodium_bin2hex(guess_master_seed_hex, sizeof(guess_master_seed_hex),
             guess_master_seed_bin, sizeof(guess_master_seed_bin));
@@ -187,11 +187,6 @@ TEST_CASE("BIP39/44 Mnemonic To Master Seed", "[nano_lib]"){
 TEST_CASE("Mnemonic to Nano Private Key", "[nano_lib]"){
     /* Use's Roosmaa's BIP39 Demo as reference for test case 
      * https://github.com/roosmaa/nano-bip39-demo */
-    // "edge defense waste choose enrich upon flee junk siren film clown finish luggage leader kid quick brick print evidence swap drill paddle truly occur" -password "some password" -path "44'/165'/0'"
-    // Private key: 3be4fc2ef3f3b7374e6fc4fb6e7bb153f8a2998b3b3dab50853eabe128024143
-    // Public key: 5b65b0e8173ee0802c2c3e6c9080d1a16b06de1176c938a924f58670904e82c4
-    // Nano address: nano_1pu7p5n3ghq1i1p4rhmek41f5add1uh34xpb94nkbxe8g4a6x1p69emk8y1d
-    //
     CONFIDENTIAL uint512_t guess_master_seed_bin;
     CONFIDENTIAL hex512_t guess_master_seed_hex;
 

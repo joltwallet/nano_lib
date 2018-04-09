@@ -40,6 +40,7 @@ typedef enum nl_err_t{
 #define ADDRESS_BUF_LEN 70
 #define BLOCK_BUF_LEN 512 // todo: optimize this number
 #define MNEMONIC_BUF_LEN (24 * 10 + 1)
+#define PASSPHRASE_BUF_LEN 256
 
 /* Useful Extra values */
 #define BURN_ADDRESS "xrb_1111111111111111111111111111111111111111111111111111hifc8npp"
