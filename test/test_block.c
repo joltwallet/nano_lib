@@ -151,7 +151,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
 TEST_CASE("Sign State Block", "[nano_lib]"){
     nl_err_t res;
     hex512_t guess_sig_hex;
-    uint256_t test_private_key_bin;
+    CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
 
     /* Test 1 */
@@ -177,6 +177,7 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
             "5000000000000000000000000000001");
 
     res = nl_block_sign(&block, test_private_key_bin);
+    sodium_memzero(test_private_key_bin, sizeof(test_private_key_bin));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
             "nl_block_sign returned an unsuccessful code");
 
@@ -193,7 +194,7 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
 TEST_CASE("Sign Send Block", "[nano_lib]"){
     nl_err_t res;
     hex512_t guess_sig_hex;
-    uint256_t test_private_key_bin;
+    CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
 
     /* Test 1 */
@@ -224,6 +225,7 @@ TEST_CASE("Sign Send Block", "[nano_lib]"){
     mbedtls_mpi_sub_mpi(&(block.balance), &(block.balance), &transaction_amount);
 
     res = nl_block_sign(&block, test_private_key_bin);
+    sodium_memzero(test_private_key_bin, sizeof(test_private_key_bin));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
             "nl_block_sign returned an unsuccessful code");
 
@@ -241,7 +243,7 @@ TEST_CASE("Sign Send Block", "[nano_lib]"){
 TEST_CASE("Sign Receive Block", "[nano_lib]"){
     nl_err_t res;
     hex512_t guess_sig_hex;
-    uint256_t test_private_key_bin;
+    CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
 
     /* Test 1 */
@@ -263,6 +265,7 @@ TEST_CASE("Sign Receive Block", "[nano_lib]"){
     block.work = nl_parse_server_work_string("f22c729331e5efb3");
 
     res = nl_block_sign(&block, test_private_key_bin);
+    sodium_memzero(test_private_key_bin, sizeof(test_private_key_bin));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
             "nl_block_sign returned an unsuccessful code");
 
@@ -279,7 +282,7 @@ TEST_CASE("Sign Receive Block", "[nano_lib]"){
 TEST_CASE("Sign Change Block", "[nano_lib]"){
     nl_err_t res;
     hex512_t guess_sig_hex;
-    uint256_t test_private_key_bin;
+    CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
 
     /* Test 1 */
@@ -300,6 +303,7 @@ TEST_CASE("Sign Change Block", "[nano_lib]"){
     block.work = nl_parse_server_work_string("3a74e84a07e6837c");
 
     res = nl_block_sign(&block, test_private_key_bin);
+    sodium_memzero(test_private_key_bin, sizeof(test_private_key_bin));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
             "nl_block_sign returned an unsuccessful code");
 
@@ -317,7 +321,7 @@ TEST_CASE("Sign Change Block", "[nano_lib]"){
 TEST_CASE("Sign Open Block", "[nano_lib]"){
     nl_err_t res;
     hex512_t guess_sig_hex;
-    uint256_t test_private_key_bin;
+    CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
 
     sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin),
@@ -337,6 +341,7 @@ TEST_CASE("Sign Open Block", "[nano_lib]"){
             HEX_256, NULL, NULL, NULL);
 
     res = nl_block_sign(&block, test_private_key_bin);
+    sodium_memzero(test_private_key_bin, sizeof(test_private_key_bin));
     TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
             "nl_block_sign returned an unsuccessful code");
 
