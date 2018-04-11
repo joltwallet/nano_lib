@@ -46,10 +46,8 @@ TEST_CASE("Compute Local PoW", "[nano_lib]"){
     uint256_t previous;
     uint64_t work;
 
-    sodium_hex2bin(previous, sizeof(previous),
-            "FC5A7FB777110A858052468D448B2DF22B648943C097C0608D1E2341007438B0",
-            HEX_256, NULL, NULL, NULL);
     for(int i = 0; i<10; i++){
+        nl_generate_seed(previous);
         t_start = esp_timer_get_time();
         work = nl_compute_local_pow(previous);
         t_end = esp_timer_get_time();
