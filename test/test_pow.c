@@ -49,7 +49,7 @@ TEST_CASE("Compute Local PoW", "[nano_lib]"){
     for(int i = 0; i<10; i++){
         nl_generate_seed(previous);
         t_start = esp_timer_get_time();
-        work = nl_compute_local_pow(previous);
+        work = nl_compute_local_pow(previous, 0);
         t_end = esp_timer_get_time();
         t_duration = (t_end - t_start) / 1000000;
         res = nl_pow_verify(previous, work);
