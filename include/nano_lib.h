@@ -127,4 +127,6 @@ void nl_generate_server_work_string(hex64_t work, const uint64_t nonce);
 bool nl_pow_verify(uint256_t hash, uint64_t nonce);
 uint64_t nl_compute_local_pow(uint256_t hash, uint64_t nonce);
 
+#include "helpers.h"
+
 #endif
