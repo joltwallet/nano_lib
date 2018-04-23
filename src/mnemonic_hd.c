@@ -355,7 +355,6 @@ nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed,
 
     memcpy(salt, "mnemonic", 8);
     strcpy(salt + 8, passphrase);
-    printf("salt: %s\n", salt);
 	pbkdf2_hmac_sha512(
             (uint8_t *) clean_mnemonic, strlen(clean_mnemonic), 
 			(uint8_t *) salt, strlen(salt),
