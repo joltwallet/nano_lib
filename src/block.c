@@ -18,6 +18,7 @@ static uint256_t STATE_BLOCK_PREAMBLE = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6};
 
 void nl_block_init(nl_block_t *block){
+    /* Initializes a block with all values set to 0 */
     block->type = UNDEFINED;
     sodium_memzero(block->account, sizeof(block->account));
     sodium_memzero(block->previous, sizeof(block->previous));
@@ -25,7 +26,9 @@ void nl_block_init(nl_block_t *block){
     sodium_memzero(&(block->work), sizeof(block->work));
     sodium_memzero(block->signature, sizeof(block->signature));
     sodium_memzero(block->link, sizeof(block->link));
+
     mbedtls_mpi_init(&(block->balance));
+    mbedtls_mpi_read_string(&(block->balance), 10, "0");
 }
 
 void nl_block_free(nl_block_t *block){
