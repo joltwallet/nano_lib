@@ -7,7 +7,6 @@
 #include "nano_lib.h"
 
 #define CHECKSUM_LEN 5
-#define ADDRESS_DATA_LEN 60 // Does NOT include null character
 #define B_11111 31
 #define B_01111 15
 #define B_00111  7

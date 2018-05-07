@@ -39,6 +39,7 @@ typedef enum nl_err_t{
 /* Constant Buffer Lengths */
 #define BALANCE_DEC_BUF_LEN 40
 #define ADDRESS_BUF_LEN 70
+#define ADDRESS_DATA_LEN 60 // Does NOT include null character
 #define BLOCK_BUF_LEN 512 // todo: optimize this number
 #define MNEMONIC_BUF_LEN (24 * 10 + 1)
 #define PASSPHRASE_BUF_LEN 256
