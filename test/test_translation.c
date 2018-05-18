@@ -9,6 +9,39 @@
 #include "nano_lib.h"
 #include "helpers.h"
 
+TEST_CASE("Raw mbed_mpi to Nano Double", "[nano_lib]"){
+    nl_err_t res;
+    char rounded_str[40];
+    double d;
+    mbedtls_mpi m;
+    mbedtls_mpi_init(&m);
+
+    /* Test 1  - Typical Amount*/
+    mbedtls_mpi_read_string(&m, 10, "5000400000000000000000000000001");
+    res = nl_mpi_to_nano_double(&m, &d);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+            "nl_mpi_to_nano_double returned an unsuccessful code");
+    snprintf(rounded_str, sizeof(rounded_str), "%.2lf", d);
+    TEST_ASSERT_EQUAL_STRING("5.00", rounded_str);
+
+    /* Test 2  - Leading Zero*/
+    mbedtls_mpi_read_string(&m, 10, "500400000000000000000000000001");
+    res = nl_mpi_to_nano_double(&m, &d);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+            "nl_mpi_to_nano_double returned an unsuccessful code");
+    snprintf(rounded_str, sizeof(rounded_str), "%.2lf", d);
+    TEST_ASSERT_EQUAL_STRING("0.50", rounded_str);
+
+    /* Test 3  - Max Available Supply to 2 decimals*/
+    mbedtls_mpi_read_string(&m, 10, "133248289203445671154116917710445381553");
+    res = nl_mpi_to_nano_double(&m, &d);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+            "nl_mpi_to_nano_double returned an unsuccessful code");
+    snprintf(rounded_str, sizeof(rounded_str), "%.2lf", d);
+    TEST_ASSERT_EQUAL_STRING("133248289.20", rounded_str);
+
+    mbedtls_mpi_free(&m);
+}
 
 TEST_CASE("Public Address To Public Key", "[nano_lib]"){
     uint256_t guess_public_key_bin;
