@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sodium.h"
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 
 #include "nano_lib.h"
@@ -12,6 +13,8 @@
 #define B_00111  7
 #define B_00011  3
 #define B_00001  1
+
+static const char *TAG = "nl_translation";
 
 nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
         const uint256_t public_key){
@@ -192,6 +195,118 @@ nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
         }
     }
 
+    return E_SUCCESS;
+}
+
+nl_err_t nl_mpi_to_nano_fixed_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t buf_out_len){
+    /* Produces string with 41 characters:
+     *     * 39 digits
+     *     * 1 decimal point
+     *     * 1 null-termination
+     * Output is left-padded with zeros; decimal is at 0-index position 9.
+     */
+    char buf[66];
+    size_t olen;
+
+    if(buf_out_len <= 40){ // not enough buffer space
+        return E_FAILURE;
+    }
+
+    if( 0 !=  mbedtls_mpi_write_string(amount_m, 10, buf, sizeof(buf), &olen)){
+        ESP_LOGE(TAG, "Needed buffer of size %d.", olen);
+        return E_FAILURE;
+    }
+
+    if(strlen(buf) > 39){ // max supply has 39 digits
+        return E_FAILURE;
+    }
+
+
+    // insert decimal point
+    // 39 char for max value, 1 char for null termination, 1 char for decimal point
+    for(int8_t i=40, j=strlen(buf); i>=0; i--){
+        if( i == 9){
+            buf_out[i] = '.';
+        }
+        else if(j>=0){
+            // on first pass this copies the null-termination
+            buf_out[i] = buf[j];
+            j--;
+        }
+        else{
+            buf_out[i] = '0';
+        }
+    }
+    return E_SUCCESS;
+}
+
+#if 0
+// todo: finish this up
+nl_err_t nl_mpi_to_nano_round_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t buf_out_len, uint8_t n_dec){
+    /* Removes uneccessary leading zeros, guarenteed accurate rounds to n_dec */
+    char buf[41];
+    if( E_SUCCESS != nl_mpi_to_nano_fixed_str(amount_m, buf, sizeof(buf))){
+        return E_FAILURE;
+    }
+
+    if(n_dec > 30){
+        n_dec = 30;
+    }
+
+
+    // perform rounding
+    bool carry = buf[9 + n_dec + 1] >= '5';
+    for(uint8_t i=9+n_dec; i>0 && carry;i--){
+        if(buf[i]=='.'){
+            continue;
+        }
+
+        if(buf[i]=='9'){
+            buf[i]='0';
+        }
+        else{
+            buf[i]++;
+            break;
+        }
+    }
+    
+    //remove leading 0 padding
+    bool first_nonzero = false;
+    for(uint8_t i=0, j=0; i<9+n_dec; i++){
+        if(!first_nonzero){
+            if(buf[i] != '0'){
+                if(11+n_dec - i > buf_out_len){
+                    return E_INSUFFICIENT_BUFFER;
+                }
+                else if(buf[i] == '.'){
+                    buf_out[j] = '0';
+                    j++;
+                    buf_out[j] = '.';
+                    j++;
+                }
+                first_nonzero = true;
+            }
+        }
+        else{
+            buf_out[j] = buf[i];
+            j++
+        }
+    }
+    buf_out[9+n_dec] = '\0';
+    return E_SUCCESS;
+}
+#endif
+
+nl_err_t nl_mpi_to_nano_double(mbedtls_mpi *amount_m, double *amount_d){
+    /* Be careful of rounding/floating-point errors. For display purposes only.
+     * For guarenteed stable rounding, use:
+     *     nl_err_t nl_mpi_to_nano_round_str
+     * */
+    char buf[41];
+    if( E_SUCCESS != nl_mpi_to_nano_fixed_str(amount_m, buf, sizeof(buf))){
+        return E_FAILURE;
+    }
+    sscanf(buf, "%lf", amount_d);
     return E_SUCCESS;
 }
 

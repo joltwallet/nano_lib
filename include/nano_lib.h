@@ -95,6 +95,7 @@ static const uint8_t const BASE32_TABLE[] = {
 /* Function Prototypes */
 nl_err_t nl_public_to_address(char address_buf[], uint8_t address_buf_len, const uint256_t public_key);
 nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]);
+nl_err_t nl_mpi_to_nano_double(mbedtls_mpi *amount_m, double *amount_d);
 
 void nl_block_init(nl_block_t *block);
 void nl_block_free(nl_block_t *block);
