@@ -51,7 +51,6 @@ static void hd_node_iterate_hardened(hd_node_t *node, uint32_t val){
     val = bswap_32(val);
 
     memcpy(data+1, node->key, sizeof(node->key));
-    memcpy(data+1+32, node->chain_code, sizeof(node->chain_code));
 	memcpy(data+1+32, &val, sizeof(val) );
 
     crypto_auth_hmacsha512_init(&state, node->chain_code, sizeof(node->chain_code));
@@ -68,6 +67,7 @@ static void hd_node_iterate_hardened(hd_node_t *node, uint32_t val){
 #define DERIVATION_PURPOSE 44
 //#define BIP32_KEY "Bitcoin seed"
 #define BIP32_KEY "ed25519 seed"
+
 void nl_master_seed_to_nano_private_key(uint256_t private_key, 
         uint512_t master_seed, uint32_t index){
     CONFIDENTIAL hd_node_t node;
