@@ -204,6 +204,7 @@ nl_err_t nl_mpi_to_nano_fixed_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t 
      *     * 1 decimal point
      *     * 1 null-termination
      * Output is left-padded with zeros; decimal is at 0-index position 9.
+     * The returned value is the absolute value
      */
     char buf[66];
     size_t olen;
@@ -230,7 +231,12 @@ nl_err_t nl_mpi_to_nano_fixed_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t 
         }
         else if(j>=0){
             // on first pass this copies the null-termination
-            buf_out[i] = buf[j];
+            if(buf[j] == '-'){
+                buf_out[i] = '0';
+            }
+            else{
+                buf_out[i] = buf[j];
+            }
             j--;
         }
         else{
@@ -307,6 +313,8 @@ nl_err_t nl_mpi_to_nano_double(mbedtls_mpi *amount_m, double *amount_d){
         return E_FAILURE;
     }
     sscanf(buf, "%lf", amount_d);
+    // mbedtls_mpi.s is 1 for pos numbers, -1 for negative
+    *amount_d *= amount_m->s;
     return E_SUCCESS;
 }
 

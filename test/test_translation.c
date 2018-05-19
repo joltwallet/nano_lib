@@ -40,6 +40,14 @@ TEST_CASE("Raw mbed_mpi to Nano Double", "[nano_lib]"){
     snprintf(rounded_str, sizeof(rounded_str), "%.2lf", d);
     TEST_ASSERT_EQUAL_STRING("133248289.20", rounded_str);
 
+    /* Test 4  - Negative Value */
+    mbedtls_mpi_read_string(&m, 10, "-500400000000000000000000000001");
+    res = nl_mpi_to_nano_double(&m, &d);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(E_SUCCESS, res,
+            "nl_mpi_to_nano_double returned an unsuccessful code");
+    snprintf(rounded_str, sizeof(rounded_str), "%.2lf", d);
+    TEST_ASSERT_EQUAL_STRING("-0.50", rounded_str);
+
     mbedtls_mpi_free(&m);
 }
 
