@@ -28,7 +28,7 @@ void nl_block_init(nl_block_t *block){
     sodium_memzero(block->link, sizeof(block->link));
 
     mbedtls_mpi_init(&(block->balance));
-    mbedtls_mpi_read_string(&(block->balance), 10, "0");
+    mbedtls_mpi_lset(&(block->balance), 0);
 }
 
 void nl_block_free(nl_block_t *block){
