@@ -20,6 +20,7 @@ typedef enum nl_err_t{
     E_INVALID_MNEMONIC_LEN,
     E_INVALID_CHECKSUM,
     E_UNABLE_ALLOCATE_MEM,
+    E_NETWORK,
 } nl_err_t;
 
 /* Generic Definitions */
