@@ -202,7 +202,6 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len){
      * Returns the index of the word that starts with parameter word.
      * Returns -1 if word is not found
      */
-    uint8_t i_letter;
     uint16_t index = (1<<(BITS_PER_WORD-1)) - 1;
 
     strnlower(word, word_len);
