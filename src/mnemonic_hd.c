@@ -204,6 +204,10 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len){
      */
     uint16_t index = (1<<(BITS_PER_WORD-1)) - 1;
 
+    if( 0 == word_len ){
+        return -1;
+    }
+
     strnlower(word, word_len);
 
     // Minimalistic Binary search for [0,2046]

@@ -45,6 +45,10 @@ TEST_CASE("BIP39/44 Wordlist Search", "[nano_lib]"){
     guess_index = nl_search_wordlist(word, strlen(word));
     TEST_ASSERT_EQUAL_INT16(-1, guess_index);
 
+    strcpy(word, "");
+    guess_index = nl_search_wordlist(word, strlen(word));
+    TEST_ASSERT_EQUAL_INT16(-1, guess_index);
+
 }
 
 TEST_CASE("BIP39/44 Verify Mnemonic", "[nano_lib]"){
