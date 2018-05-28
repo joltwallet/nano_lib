@@ -93,17 +93,17 @@ nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
 }
 
 nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
-	/* Translates an address to binary public key
+    /* Translates an address to binary public key
      *
      * pub_key - 256-bit buffer to store the translated public key
      * address - Null terminated string containing address
      *
      * Based on Roosmaa's Ledger S Nano Github
-	*/
+    */
     uint8_t i, c;
     uint8_t checkInp[CHECKSUM_LEN] = {0};
     uint8_t check[CHECKSUM_LEN] = {0};
-	uint8_t size = strlen(address);
+    uint8_t size = strlen(address);
 
     // Check prefix and exclude it from the buffer
     if ((address[0] == 'n' || address[0] == 'N') &&

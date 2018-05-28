@@ -25,9 +25,9 @@ TEST_CASE("Verify Signature", "[nano_lib]"){
             "94AF6057B635105DB8F5EA3FC612256B12EDABB548379076F4A07E8ACAAF8F05",
             HEX_512, NULL, NULL, NULL);
 
-	res = nl_verify_sig_detached(test_sig_bin,
-        	(uint8_t *)test_message, strlen(test_message),
-			test_public_key_bin);
+    res = nl_verify_sig_detached(test_sig_bin,
+            (uint8_t *)test_message, strlen(test_message),
+            test_public_key_bin);
 
     TEST_ASSERT_EQUAL_MESSAGE(E_SUCCESS, res, "Rejected Valid Signature");
 
@@ -40,9 +40,9 @@ TEST_CASE("Verify Signature", "[nano_lib]"){
             "94AF6057B635105DB8F5EA3FC612256B12EDABB548379076F4A07E8ACAAF8F06",
             HEX_512, NULL, NULL, NULL);
 
-	res = nl_verify_sig_detached(test_sig_bin,
-        	(uint8_t *)test_message, strlen(test_message),
-			test_public_key_bin);
+    res = nl_verify_sig_detached(test_sig_bin,
+            (uint8_t *)test_message, strlen(test_message),
+            test_public_key_bin);
 
     TEST_ASSERT_EQUAL_MESSAGE(E_FAILURE, -res, "Accepted Invalid Signature");
 }
@@ -56,7 +56,7 @@ TEST_CASE("Private Key To Public Key", "[nano_lib]"){
     sodium_hex2bin(test_private_key_bin, sizeof(test_private_key_bin), \
             "102A1BD8E50D314B1AF18B064763836500961D97E1517B409D9797E37F148290",
             HEX_256, NULL, NULL, NULL);
-	nl_private_to_public(guess_public_key_bin, test_private_key_bin);
+    nl_private_to_public(guess_public_key_bin, test_private_key_bin);
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
     strupper(guess_public_key_hex);

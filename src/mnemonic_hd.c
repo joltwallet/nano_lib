@@ -51,7 +51,7 @@ static void hd_node_iterate_hardened(hd_node_t *node, uint32_t val){
     val = bswap_32(val);
 
     memcpy(data+1, node->key, sizeof(node->key));
-	memcpy(data+1+32, &val, sizeof(val) );
+    memcpy(data+1+32, &val, sizeof(val) );
 
     crypto_auth_hmacsha512_init(&state, node->chain_code, sizeof(node->chain_code));
     crypto_auth_hmacsha512_update(&state, data, sizeof(data));
@@ -84,9 +84,9 @@ void nl_master_seed_to_nano_private_key(uint256_t private_key,
 }
 
 static void pbkdf2_hmac_sha512(const uint8_t *passwd, size_t passwdlen, 
-		const uint8_t *salt, size_t saltlen,
-		uint8_t *buf, size_t dkLen, uint64_t c){
-	/*
+        const uint8_t *salt, size_t saltlen,
+        uint8_t *buf, size_t dkLen, uint64_t c){
+    /*
      * c - number of iterations
      * buf - stores the derived key 
      * dkLen - derived key length in bits
@@ -160,12 +160,12 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
 
     /* Generate Checksum */
     uint8_t entropy_len = strength / 8;
-	uint8_t m_len = entropy_len * 3 / 4; //number of mnemonic words
+    uint8_t m_len = entropy_len * 3 / 4; //number of mnemonic words
     CONFIDENTIAL unsigned char cs_entropy[sizeof(uint256_t) + 1];
 
-	if(buf_len < (m_len * 10 + 1)){
-		return E_INSUFFICIENT_BUF;
-	}
+    if(buf_len < (m_len * 10 + 1)){
+        return E_INSUFFICIENT_BUF;
+    }
 
     // Make cs_entropy first entropy_len bits be entropy, remaining
     // bits (up to 8 needed) be the first bits from the sha256 hash
@@ -173,27 +173,27 @@ nl_err_t nl_entropy_to_mnemonic(char buf[], const uint16_t buf_len,
     cs_entropy[entropy_len] = cs_entropy[0];
     memcpy(cs_entropy, entropy, entropy_len);
 
-	CONFIDENTIAL uint16_t list_idx;
+    CONFIDENTIAL uint16_t list_idx;
     uint8_t i, j;
     uint16_t bit_idx;
-	for (i = 0; i < m_len; i++, buf++) {
-		for (j=0, list_idx=0, bit_idx = i * BITS_PER_WORD;
+    for (i = 0; i < m_len; i++, buf++) {
+        for (j=0, list_idx=0, bit_idx = i * BITS_PER_WORD;
                 j < BITS_PER_WORD;
                 j++, bit_idx++) {
             list_idx <<=1;
-			list_idx += ( cs_entropy[bit_idx / 8] & 
-		                  (1 << (7 - bit_idx % 8))
+            list_idx += ( cs_entropy[bit_idx / 8] & 
+                          (1 << (7 - bit_idx % 8))
                         ) > 0;
-		}
+        }
         // Copy the word over from the mnemonic word list
-		strcpy(buf, wordlist[list_idx]);
-		buf += strlen(wordlist[list_idx]);
-		buf[0] = (i < m_len - 1) ? ' ' : 0;
-	}
+        strcpy(buf, wordlist[list_idx]);
+        buf += strlen(wordlist[list_idx]);
+        buf[0] = (i < m_len - 1) ? ' ' : 0;
+    }
     sodium_memzero(&list_idx, sizeof(list_idx));
-	sodium_memzero(cs_entropy, sizeof(cs_entropy));
+    sodium_memzero(cs_entropy, sizeof(cs_entropy));
 
-	return E_SUCCESS;
+    return E_SUCCESS;
 }
 
 int16_t nl_search_wordlist(char *word, uint8_t word_len){
@@ -304,15 +304,15 @@ nl_err_t nl_verify_mnemonic(const char mnemonic[]){
     // Verify Checksum
     cs_entropy[32] = cs_entropy[m_len * 4/3];
     crypto_hash_sha256(cs_entropy, cs_entropy, m_len * 4/3);
-	if (m_len == 12 && (cs_entropy[0] & 0xF0) == (cs_entropy[32] & 0xF0) ) {
-		return E_SUCCESS;
-	}
-	else if (m_len == 18 && (cs_entropy[0] & 0xFC) == (cs_entropy[32] & 0xFC)) {
-		return E_SUCCESS;
-	}
-	else if (m_len == 24 && cs_entropy[0] == cs_entropy[32]) {
-		return E_SUCCESS;
-	}
+    if (m_len == 12 && (cs_entropy[0] & 0xF0) == (cs_entropy[32] & 0xF0) ) {
+        return E_SUCCESS;
+    }
+    else if (m_len == 18 && (cs_entropy[0] & 0xFC) == (cs_entropy[32] & 0xFC)) {
+        return E_SUCCESS;
+    }
+    else if (m_len == 24 && cs_entropy[0] == cs_entropy[32]) {
+        return E_SUCCESS;
+    }
 
     return E_INVALID_CHECKSUM;
 }
@@ -353,11 +353,11 @@ nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed,
 
     memcpy(salt, "mnemonic", 8);
     strcpy(salt + 8, passphrase);
-	pbkdf2_hmac_sha512(
+    pbkdf2_hmac_sha512(
             (uint8_t *) clean_mnemonic, strlen(clean_mnemonic), 
-			(uint8_t *) salt, strlen(salt),
+            (uint8_t *) salt, strlen(salt),
             (uint8_t *) master_seed, sizeof(uint512_t),
-			2048);
+            2048);
     sodium_memzero(salt, strlen(salt));
     sodium_memzero(clean_mnemonic, strlen(clean_mnemonic));
     return E_SUCCESS;

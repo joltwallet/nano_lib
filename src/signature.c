@@ -47,13 +47,13 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
 void nl_sign_detached(uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t sk, const uint256_t pk){
-	/* sig - Returned signature
+    /* sig - Returned signature
      * siglen_p - Returned signature length (can be NULL if user doesn't care)
      * m - message to sign
      * mlen - length of message in bytes
      * sk - Secret Key
      * pk - Public Key
-	*/
+    */
     crypto_generichash_blake2b_state hs;
     CONFIDENTIAL unsigned char az[64];
     unsigned char nonce[64];
@@ -95,13 +95,13 @@ void nl_sign_detached(uint512_t sig,
 nl_err_t nl_verify_sig_detached(const uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t pk){
-	/* sig - Returned signature
+    /* sig - Returned signature
      * siglen_p - Returned signature length (can be NULL if user doesn't care)
      * m - message to sign
      * mlen - length of message in bytes
      * sk - Secret Key
      * pk - Public Key
-	*/
+    */
     crypto_generichash_blake2b_state hs;
     unsigned char            h[64];
     unsigned char            rcheck[32];
@@ -131,8 +131,8 @@ nl_err_t nl_verify_sig_detached(const uint512_t sig,
     crypto_generichash_blake2b_update(&hs, m, mlen);
     crypto_generichash_blake2b_final(&hs, h, 64);
 
-	sc_reduce(h);
-	ge_double_scalarmult_vartime(&R, h, &A, sig + 32);
+    sc_reduce(h);
+    ge_double_scalarmult_vartime(&R, h, &A, sig + 32);
     ge_tobytes(rcheck, &R);
 
     return crypto_verify_32(rcheck, sig) | (-(rcheck == sig)) |

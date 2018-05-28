@@ -41,7 +41,7 @@ nl_err_t nl_block_sign(nl_block_t *block,
      * the content of the other fields. The "account" field will be overwritten
      * with the freshly rederived public key to prevent leaks*/
 
-	nl_private_to_public(block->account, private_key);
+    nl_private_to_public(block->account, private_key);
 
     uint256_t digest;
     nl_err_t res;

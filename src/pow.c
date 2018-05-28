@@ -30,22 +30,22 @@ static uint64_t pow_output (uint256_t hash, uint64_t nonce){
     /* Computes the resulting hash of using nonce. For Nano's PoW, you want the
      * output hash to be high
      */
-	uint64_t res;
+    uint64_t res;
     crypto_generichash_blake2b_state state;
     crypto_generichash_blake2b_init(&state, NULL, 0, sizeof(res));
     crypto_generichash_blake2b_update(&state, (uint8_t *)&nonce, sizeof(nonce));
     crypto_generichash_blake2b_update(&state, hash, BIN_256);
     crypto_generichash_blake2b_final(&state, (uint8_t *)&res, sizeof(res));
-	return res;
+    return res;
 }
 
 bool nl_pow_verify(uint256_t hash, uint64_t nonce){
-	/* Usually hash is the previous block hash. For open blocks its the
+    /* Usually hash is the previous block hash. For open blocks its the
      * public key.
      *
      * Returns False on success
      */
-	return pow_output (hash, nonce) < publish_full_threshold;
+    return pow_output (hash, nonce) < publish_full_threshold;
 }
 
 uint64_t nl_compute_local_pow(uint256_t hash, uint64_t nonce){
