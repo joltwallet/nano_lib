@@ -3,16 +3,16 @@ menu "Nano ESP32 Library Config"
     config NANO_LIB_ENABLE
         bool
         prompt "Enable the Nano Library"
-        default false
+        default y
         help
-            help text
+            Enable nano_lib library (toggle not implemented)
 
     config NANO_LIB_POW_UNIT_TEST_IGNORE
         bool
         prompt "Ignore the PoW Unit Test (long run time)"
-        default true
+        default y
         help
-            help text
+            Disable the PoW Unit Test when running all unit tests
 
     config NANO_LIB_ADDRESS_PREFIX
         string
@@ -24,7 +24,7 @@ menu "Nano ESP32 Library Config"
 
     config NANO_LIB_DERIVATION_PATH
         int
-        prompt ""
+        prompt "Nano's BIP derivation index"
         depends on NANO_LIB_ENABLE
         default 165
         help
