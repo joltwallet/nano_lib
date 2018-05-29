@@ -100,6 +100,8 @@ nl_err_t nl_mpi_to_nano_double(mbedtls_mpi *amount_m, double *amount_d);
 
 void nl_block_init(nl_block_t *block);
 void nl_block_free(nl_block_t *block);
+void nl_block_copy(nl_block_t *dst, nl_block_t *src);
+bool nl_block_equal(nl_block_t *dst, nl_block_t *src);
 
 void nl_private_to_public(uint256_t pk, const uint256_t sk);
 void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,

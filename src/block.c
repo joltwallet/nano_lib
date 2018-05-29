@@ -35,6 +35,23 @@ void nl_block_free(nl_block_t *block){
     mbedtls_mpi_free(&(block->balance));
 }
 
+void nl_block_copy(nl_block_t *dst, nl_block_t *src){
+    /* Copies contents from block src to block dst */
+    memcpy( dst, src, sizeof(nl_block_t) - sizeof(mbedtls_mpi) );
+    mbedtls_mpi_copy(&(*dst).balance, &(*src).balance);
+}
+
+bool nl_block_equal(nl_block_t *dst, nl_block_t *src){
+    /* Tests to see if the blocks are equivalent */
+    if( 0 != memcmp(dst, src, sizeof(nl_block_t) - sizeof(mbedtls_mpi)) ){
+        return false;
+    }
+    if( 0 != mbedtls_mpi_cmp_mpi(&((*dst).balance), &((*src).balance)) ) {
+        return false;
+    }
+    return true;
+}
+
 nl_err_t nl_block_sign(nl_block_t *block,
         const uint256_t private_key){
     /* Fills in the signature field of a block given a 256-bit private key and
