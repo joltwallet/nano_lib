@@ -1,21 +1,19 @@
 # Nano Lib
-Nano Currency functions for embedded targets. This library was constructed
-with the ESP32 in mind, but can be ported over to other platforms without too
-much headache.
+Low level [Nano Currency](https://github.com/nanocurrency/raiblocks) functions for embedded targets. This library was constructed with the ESP32 in mind, but can be ported over to other platforms without too much headache. All hashing and signing heavily relies on libsodium. This currently works with the [commit](https://github.com/jedisct1/libsodium/tree/70170c28c844a4786e75efc626e1aeebc93caebc) (@70170c2) bundled with [ESP-IDF](https://github.com/espressif/esp-idf).
 
-# Todo
-* [ongoing] More error handling (and test for it in unit tests)
-* [ongoing] Be super careful about remembering to zero out anything that touches secrets
-* [Complete] State Block Signing
-* [Move to websocket library] Function to convert an nl_block_t into a "process" RPC command
-* [Complete; discussing tweaks with Roosmaa]BIP39/44 Related Functions
-* [Complete] Block Hash Check
-* [Complete] Verify Signature
-* [Complete] Work endianess functions
+# Design
+Nano heavily relies on uint256 numbers; in this library these are represented as a 32-long unsigned char array. To reduce confusion; information is always kept in their uint256 state as much as possible, i.e. storing public keys instead of nano addresses.
 
-# Probably won't happen, but ideas
-* [Complete] On-board PoW (and make it a low priority background task);
-    * Generally too slow unless lucky. Of 3 local PoW tests:
-        1) 20 minutes
-        2) 4 minutes
-        3) >1hr (test incomplete)
+When applicable, all transactions are stored in `struct nl_block_t`. This structure supports all legacy and state blocks. While this library supports legacy blocks, it was really designed with State Blocks in mind.
+
+# Unit Tests
+Unit tests can be used by selecting this library with a target using the [ESP32 Unit Tester](https://github.com/BrianPugh/esp32_unit_tester).
+
+```
+make flash TEST_COMPONENTS='nano_lib' monitor
+```
+
+The unit tests (in the `test` folder) is a good source of examples on how to use this library.
+
+# Related Projects
+[`nano_parse`](https://github.com/joltwallet/nano_parse) - Library for crafting `rai_node` rpc calls and parsing their responses to be compatible with this library. [`nano_parse`](https://github.com/joltwallet/nano_lws) optionally builds with `nano_lws` which handles websockets for communicating with a `rai_node` over wifi.
