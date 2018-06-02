@@ -142,9 +142,8 @@ nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
         }
         size -= 4;
         address += 4;
-    } else if (size == ADDRESS_DATA_LEN){
-        // continue; assumes address doesn't have a prefix
-    } else {
+    }
+    if (size != ADDRESS_DATA_LEN){
         return E_INVALID_ADDRESS;
     }
 

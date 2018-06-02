@@ -25,6 +25,11 @@
 #include "nano_lib.h"
 #include "helpers.h"
 
+#ifdef ESP32
+#include "esp_log.h"
+static const char *TAG = "nano_lib_block";
+#endif
+
 static void hash_state (const nl_block_t *block, uint256_t digest);
 static void hash_open (const nl_block_t *block, uint256_t digest);
 static void hash_change (const nl_block_t *block, uint256_t digest);
@@ -38,6 +43,7 @@ void nl_block_init(nl_block_t *block){
     /* Initializes a block with all values set to 0 */
     block->type = UNDEFINED;
     sodium_memzero(block->account, sizeof(block->account));
+    printf("sizeof account: %d\n", sizeof(block->account));
     sodium_memzero(block->previous, sizeof(block->previous));
     sodium_memzero(block->representative, sizeof(block->representative));
     sodium_memzero(&(block->work), sizeof(block->work));
@@ -54,16 +60,65 @@ void nl_block_free(nl_block_t *block){
 
 void nl_block_copy(nl_block_t *dst, nl_block_t *src){
     /* Copies contents from block src to block dst */
-    memcpy( dst, src, sizeof(nl_block_t) - sizeof(mbedtls_mpi) );
+    memcpy( &(dst->type), &(src->type), sizeof(nl_block_type_t) );
+    memcpy( dst->account, src->account, sizeof(uint256_t) );
+    memcpy( dst->previous, src->previous, sizeof(uint256_t) );
+    memcpy( dst->representative, src->representative, sizeof(uint256_t) );
+    dst->work = src->work;
+    memcpy( &(dst->signature), src->signature, sizeof(uint512_t) );
+    memcpy( dst->link, src->link, sizeof(uint256_t) );
     mbedtls_mpi_copy(&(*dst).balance, &(*src).balance);
 }
 
 bool nl_block_equal(nl_block_t *dst, nl_block_t *src){
     /* Tests to see if the blocks are equivalent */
-    if( 0 != memcmp(dst, src, sizeof(nl_block_t) - sizeof(mbedtls_mpi)) ){
+    if( memcmp( &(dst->type), &(src->type), sizeof(nl_block_type_t) ) ) {
+        #ifdef ESP32
+        ESP_LOGI(TAG, "Block Comparison Fail: Different Type.");
+        #endif
         return false;
     }
+    if( memcmp( dst->account, src->account, sizeof(uint256_t) ) ) {
+        #ifdef ESP32
+        ESP_LOGI(TAG, "Block Comparison Fail: Different Account.");
+        #endif
+        return false;
+    }
+    if( memcmp( dst->previous, src->previous, sizeof(uint256_t) ) ) {
+        #ifdef ESP32
+        ESP_LOGI(TAG, "Block Comparison Fail: Different Previous.");
+        #endif
+        return false;
+    }
+    if( memcmp( dst->representative, src->representative, sizeof(uint256_t) ) ) {
+        #ifdef ESP32
+        ESP_LOGI(TAG, "Block Comparison Fail: Different Representative.");
+        #endif
+        return false;
+    }
+    if( dst->work != src->work ) {
+        #ifdef ESP32
+        ESP_LOGI(TAG, "Block Comparison Fail: Different Work.");
+        #endif
+        return false;
+    }
+    if( memcmp( &(dst->signature), src->signature, sizeof(uint512_t) ) ) {
+        #ifdef ESP32
+        ESP_LOGI(TAG, "Block Comparison Fail: Different Signature.");
+        #endif
+        return false;
+    }
+    if( memcmp( dst->link, src->link, sizeof(uint256_t) ) ) {
+        #ifdef ESP32
+        ESP_LOGI(TAG, "Block Comparison Fail: Different Link.");
+        #endif
+        return false;
+    }
+
     if( 0 != mbedtls_mpi_cmp_mpi(&((*dst).balance), &((*src).balance)) ) {
+        #ifdef ESP32
+        ESP_LOGI(TAG, "Block Comparison Fail: Different Balance.");
+        #endif
         return false;
     }
     return true;
