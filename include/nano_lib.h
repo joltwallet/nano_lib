@@ -145,7 +145,7 @@ nl_err_t nl_mnemonic_to_master_seed(uint512_t master_seed,
 void nl_master_seed_to_nano_private_key(uint256_t private_key, 
         uint512_t master_seed, uint32_t index);
 
-uint64_t nl_parse_server_work_string(hex64_t work);
+nl_err_t nl_parse_server_work_string(hex64_t work_str, uint64_t *work_int);
 void nl_generate_server_work_string(hex64_t work, const uint64_t nonce);
 bool nl_pow_verify(uint256_t hash, uint64_t nonce);
 uint64_t nl_compute_local_pow(uint256_t hash, uint64_t nonce);

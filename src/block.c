@@ -43,7 +43,6 @@ void nl_block_init(nl_block_t *block){
     /* Initializes a block with all values set to 0 */
     block->type = UNDEFINED;
     sodium_memzero(block->account, sizeof(block->account));
-    printf("sizeof account: %d\n", sizeof(block->account));
     sodium_memzero(block->previous, sizeof(block->previous));
     sodium_memzero(block->representative, sizeof(block->representative));
     sodium_memzero(&(block->work), sizeof(block->work));

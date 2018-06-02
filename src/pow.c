@@ -28,13 +28,18 @@
 static uint64_t const publish_test_threshold = 0xff00000000000000;
 static uint64_t const publish_full_threshold = 0xffffffc000000000;
 
-uint64_t nl_parse_server_work_string(hex64_t work){
+nl_err_t nl_parse_server_work_string(hex64_t work_str, uint64_t *work_int){
     /* Converts an ascii hex string to a uint64_t and flips the endianness.
-     * This allows work to be used in local computations.*/
-    uint64_t res;
-    sodium_hex2bin((uint8_t *)&res, sizeof(res), work, HEX_64,
-            NULL, NULL, NULL);
-    return bswap_64(res);
+     * This allows work to be used in local computations.
+     *
+     * Returns 0 on error */
+    if( sodium_hex2bin((uint8_t *)work_int, sizeof(uint64_t),
+            work_str, sizeof(hex64_t),
+            NULL, NULL, NULL) ){
+        return E_FAILURE;
+    }
+    *work_int = bswap_64(*work_int);
+    return E_SUCCESS;
 }
 
 void nl_generate_server_work_string(hex64_t work, uint64_t nonce){
@@ -60,15 +65,15 @@ bool nl_pow_verify(uint256_t hash, uint64_t nonce){
     /* Usually hash is the previous block hash. For open blocks its the
      * public key.
      *
-     * Returns False on success
+     * Returns True on success
      */
-    return pow_output (hash, nonce) < publish_full_threshold;
+    return pow_output (hash, nonce) >= publish_full_threshold;
 }
 
 uint64_t nl_compute_local_pow(uint256_t hash, uint64_t nonce){
     // Starts guessing nonces starting from the passed in nonce.
     // If you don't care, the passed in nonce can simply be 0
-    for(; nl_pow_verify(hash, nonce); nonce++);
+    for(; !nl_pow_verify(hash, nonce); nonce++);
     return nonce;
 }
 

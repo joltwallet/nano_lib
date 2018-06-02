@@ -38,17 +38,19 @@ TEST_CASE("Verify PoW", "[nano_lib]"){
     sodium_hex2bin(previous, sizeof(previous),
             "FC5A7FB777110A858052468D448B2DF22B648943C097C0608D1E2341007438B0",
             HEX_256, NULL, NULL, NULL);
-    work = nl_parse_server_work_string("677d7dcc1e358b37");
-    res = nl_pow_verify(previous, work);
+    res = nl_parse_server_work_string("677d7dcc1e358b37", &work);
     TEST_ASSERT_FALSE(res);
+    res = nl_pow_verify(previous, work);
+    TEST_ASSERT_TRUE(res);
 
     /* Invalid Work */
     sodium_hex2bin(previous, sizeof(previous),
             "FC5A7FB777110A858052468D448B2DF22B648943C097C0608D1E2341007438B0",
             HEX_256, NULL, NULL, NULL);
-    work = nl_parse_server_work_string("677d7dcc1e358b38");
+    res = nl_parse_server_work_string("677d7dcc1e358b38", &work);
+    TEST_ASSERT_FALSE(res);
     res = nl_pow_verify(previous, work);
-    TEST_ASSERT_TRUE(res);
+    TEST_ASSERT_FALSE(res);
 }
 
 TEST_CASE("Compute Local PoW", "[nano_lib]"){
@@ -70,7 +72,7 @@ TEST_CASE("Compute Local PoW", "[nano_lib]"){
         t_end = esp_timer_get_time();
         t_duration = (t_end - t_start) / 1000000;
         res = nl_pow_verify(previous, work);
-        TEST_ASSERT_FALSE(res);
+        TEST_ASSERT_TRUE(res);
         printf("PoW %d time: %ds\n", i, t_duration);
     }
 }
