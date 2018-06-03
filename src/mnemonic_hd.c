@@ -221,7 +221,7 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len){
      */
     uint16_t index = (1<<(BITS_PER_WORD-1)) - 1;
 
-    if( 0 == word_len ){
+    if( NULL == word || 0 == word_len ){
         return -1;
     }
 
@@ -231,15 +231,18 @@ int16_t nl_search_wordlist(char *word, uint8_t word_len){
     for(uint16_t depth=(1<<(BITS_PER_WORD-1)); depth>0;){
         depth>>=1;
 
-        int res = strcmp(word, wordlist[index]);
+        int res = strncmp(word, wordlist[index], word_len);
         if(res>0){
             index += depth;
         }
         else if(res < 0){
             index -= depth;
         }
-        else{
+        else if( strlen(wordlist[index]) == word_len ){
             return index;
+        }
+        else{
+            return -1;
         }
     }
     // Check if it's zoo (index 2047)
