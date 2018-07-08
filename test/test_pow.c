@@ -13,12 +13,12 @@
 #include "sodium.h"
 #include "esp_timer.h"
 
+#include "jolttypes.h"
 #include "nano_lib.h"
-#include "helpers.h"
 
 TEST_CASE("Verify PoW", "[nano_lib]"){
     /* Note that nl_pow_verify returns 0 (False, E_SUCCESS) on Success */
-    nl_err_t res;
+    jolt_err_t res;
     uint256_t previous;
     uint64_t work;
 
@@ -46,7 +46,7 @@ TEST_CASE("Compute Local PoW", "[nano_lib]"){
     TEST_IGNORE_MESSAGE("Skipping Compute Local PoW Test");
     #endif
 
-    nl_err_t res;
+    jolt_err_t res;
     uint64_t t_start;
     uint64_t t_end;
     uint32_t t_duration;

@@ -6,12 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <byteswap.h>
 #include "sodium.h"
 #include "freertos/FreeRTOS.h"
 
 #include "sodium/private/curve25519_ref10.h"
 
 #include "nano_lib.h"
+#include "jolttypes.h"
 #include "helpers.h"
 
 // Derives Nano Public Key from Private Key
@@ -38,7 +40,7 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
     // Derives the private key from seed at index
     crypto_generichash_state state;
 
-    index = bswap_32(index);
+    index = __bswap_32(index);
 
     crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
     crypto_generichash_update(&state, seed_bin, BIN_256);
@@ -97,7 +99,7 @@ void nl_sign_detached(uint512_t sig,
 }
 
 // Verify some message m
-nl_err_t nl_verify_sig_detached(const uint512_t sig,
+jolt_err_t nl_verify_sig_detached(const uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t pk){
     /* sig - Returned signature

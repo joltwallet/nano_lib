@@ -11,9 +11,9 @@
 #include "mbedtls/bignum.h"
 
 #include "nano_lib.h"
-#include "helpers.h"
+#include "jolttypes.h"
 
-#ifdef ESP32
+#ifdef ESP_PLATFORM
 #include "esp_log.h"
 static const char *TAG = "nano_lib_block";
 #endif
@@ -60,50 +60,50 @@ void nl_block_copy(nl_block_t *dst, nl_block_t *src){
 bool nl_block_equal(nl_block_t *dst, nl_block_t *src){
     /* Tests to see if the blocks are equivalent */
     if( memcmp( &(dst->type), &(src->type), sizeof(nl_block_type_t) ) ) {
-        #ifdef ESP32
+        #ifdef ESP_PLATFORM
         ESP_LOGI(TAG, "Block Comparison Fail: Different Type.");
         #endif
         return false;
     }
     if( memcmp( dst->account, src->account, sizeof(uint256_t) ) ) {
-        #ifdef ESP32
+        #ifdef ESP_PLATFORM
         ESP_LOGI(TAG, "Block Comparison Fail: Different Account.");
         #endif
         return false;
     }
     if( memcmp( dst->previous, src->previous, sizeof(uint256_t) ) ) {
-        #ifdef ESP32
+        #ifdef ESP_PLATFORM
         ESP_LOGI(TAG, "Block Comparison Fail: Different Previous.");
         #endif
         return false;
     }
     if( memcmp( dst->representative, src->representative, sizeof(uint256_t) ) ) {
-        #ifdef ESP32
+        #ifdef ESP_PLATFORM
         ESP_LOGI(TAG, "Block Comparison Fail: Different Representative.");
         #endif
         return false;
     }
     if( dst->work != src->work ) {
-        #ifdef ESP32
+        #ifdef ESP_PLATFORM
         ESP_LOGI(TAG, "Block Comparison Fail: Different Work.");
         #endif
         return false;
     }
     if( memcmp( &(dst->signature), src->signature, sizeof(uint512_t) ) ) {
-        #ifdef ESP32
+        #ifdef ESP_PLATFORM
         ESP_LOGI(TAG, "Block Comparison Fail: Different Signature.");
         #endif
         return false;
     }
     if( memcmp( dst->link, src->link, sizeof(uint256_t) ) ) {
-        #ifdef ESP32
+        #ifdef ESP_PLATFORM
         ESP_LOGI(TAG, "Block Comparison Fail: Different Link.");
         #endif
         return false;
     }
 
     if( 0 != mbedtls_mpi_cmp_mpi(&((*dst).balance), &((*src).balance)) ) {
-        #ifdef ESP32
+        #ifdef ESP_PLATFORM
         ESP_LOGI(TAG, "Block Comparison Fail: Different Balance.");
         #endif
         return false;
@@ -111,7 +111,7 @@ bool nl_block_equal(nl_block_t *dst, nl_block_t *src){
     return true;
 }
 
-nl_err_t nl_block_sign(nl_block_t *block,
+jolt_err_t nl_block_sign(nl_block_t *block,
         const uint256_t private_key){
     /* Fills in the signature field of a block given a 256-bit private key and
      * the content of the other fields. The "account" field will be overwritten
@@ -120,7 +120,7 @@ nl_err_t nl_block_sign(nl_block_t *block,
     nl_private_to_public(block->account, private_key);
 
     uint256_t digest;
-    nl_err_t res;
+    jolt_err_t res;
 
     res = nl_block_compute_hash(block, digest);
     if(res){
@@ -189,7 +189,7 @@ static void hash_receive (const nl_block_t *block, uint256_t digest){
     crypto_generichash_final(&state, digest, BIN_256);
 }
 
-nl_err_t nl_block_compute_hash(const nl_block_t *block, uint256_t hash){
+jolt_err_t nl_block_compute_hash(const nl_block_t *block, uint256_t hash){
     switch(block->type){
         case UNDEFINED:
             return E_UNDEFINED_BLOCK_TYPE;
