@@ -15,7 +15,6 @@
 
 #include "jolttypes.h"
 #include "nano_lib.h"
-#include "../src/helpers.h"
 
 TEST_CASE("Verify PoW", "[nano_lib]"){
     /* Note that nl_pow_verify returns 0 (False, E_SUCCESS) on Success */

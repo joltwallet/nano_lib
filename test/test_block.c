@@ -13,7 +13,6 @@
 
 #include "jolttypes.h"
 #include "nano_lib.h"
-#include "../src/helpers.h"
 
 
 TEST_CASE("Verify Block Hash", "[nano_lib]"){
@@ -45,7 +44,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
 
     sodium_bin2hex(guess_hash_hex, sizeof(guess_hash_hex),
             guess_hash_bin, sizeof(guess_hash_bin));
-    strupper(guess_hash_hex);
+    strupr(guess_hash_hex);
     TEST_ASSERT_EQUAL_STRING(
             "597395E83BD04DF8EF30AF04234EAAFE0606A883CF4AEAD2DB8196AAF5C4444F",
             guess_hash_hex);
@@ -79,7 +78,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
 
     sodium_bin2hex(guess_hash_hex, sizeof(guess_hash_hex),
             guess_hash_bin, sizeof(guess_hash_bin));
-    strupper(guess_hash_hex);
+    strupr(guess_hash_hex);
     TEST_ASSERT_EQUAL_STRING(
             "6447171713541D387BAB4161E6BA40A88F41140218395DCCA0230BC29827717A",
             guess_hash_hex);
@@ -103,7 +102,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
 
     sodium_bin2hex(guess_hash_hex, sizeof(guess_hash_hex),
             guess_hash_bin, sizeof(guess_hash_bin));
-    strupper(guess_hash_hex);
+    strupr(guess_hash_hex);
     TEST_ASSERT_EQUAL_STRING(
             "AB67B959665FD6CE8B947196E8B0D00DE5D07FA38BE0938966530226D7F52446",
             guess_hash_hex);
@@ -126,7 +125,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
 
     sodium_bin2hex(guess_hash_hex, sizeof(guess_hash_hex),
             guess_hash_bin, sizeof(guess_hash_bin));
-    strupper(guess_hash_hex);
+    strupr(guess_hash_hex);
     TEST_ASSERT_EQUAL_STRING(
             "70B6BD8B225F62F59EF09D11287DEE95CC07DFA42EADBADA15D8DD4C6AD7C369",
             guess_hash_hex);
@@ -149,7 +148,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
 
     sodium_bin2hex(guess_hash_hex, sizeof(guess_hash_hex),
             guess_hash_bin, sizeof(guess_hash_bin));
-    strupper(guess_hash_hex);
+    strupr(guess_hash_hex);
     TEST_ASSERT_EQUAL_STRING(
             "EFFACC9470702D3280FFDC22D1FA2922CB6BB85C86A4CEAAD6E68B63F607F3EC",
             guess_hash_hex);
@@ -190,7 +189,7 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));
-    strupper(guess_sig_hex);
+    strupr(guess_sig_hex);
     nl_block_free(&block);
     TEST_ASSERT_EQUAL_STRING(
             "90CBD62F5466E35DB3BFE5EFDBC6283BD30C0591A3787C9458D11F2AF6188E45"
@@ -238,7 +237,7 @@ TEST_CASE("Sign Send Block", "[nano_lib]"){
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));
-    strupper(guess_sig_hex);
+    strupr(guess_sig_hex);
     TEST_ASSERT_EQUAL_STRING(
             "A9807C7103BFD6D1A19E128F0D0318FAEF042E6A4497F7D53F17558043DB0225"
             "53B8B5259C0C317E771437A1790D613678F8EA954BE0B0157F16611C8195ED0B",
@@ -278,7 +277,7 @@ TEST_CASE("Sign Receive Block", "[nano_lib]"){
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));
-    strupper(guess_sig_hex);
+    strupr(guess_sig_hex);
     TEST_ASSERT_EQUAL_STRING(
             "C557AFF3388FA6372EC65D4A6C7256BFC2DCEE5E734C1B57B5791095A7910228"
             "9BBF5CE676D0A9451AB90314124A07653E9169AAABB82628BA57A1A3DD057A0E",
@@ -317,7 +316,7 @@ TEST_CASE("Sign Change Block", "[nano_lib]"){
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));
-    strupper(guess_sig_hex);
+    strupr(guess_sig_hex);
     TEST_ASSERT_EQUAL_STRING(
             "93E243440E64E44C7D33359F15B18EA3FC5E5A5B3EFB3996F1B05D436AF200E9"
             "1C6DBC16E0C62142776A0FAE393C85F43FAD16C5227225EA87E1FD08A46B4605",
@@ -354,7 +353,7 @@ TEST_CASE("Sign Open Block", "[nano_lib]"){
 
     sodium_bin2hex(guess_sig_hex, sizeof(guess_sig_hex),
             block.signature, sizeof(block.signature));
-    strupper(guess_sig_hex);
+    strupr(guess_sig_hex);
     TEST_ASSERT_EQUAL_STRING(
             "12776A6DBF21AD285EAA187EC9E7BDF622C18AAFE765100CA62FCD4C7800FB91"
             "4C8C43872CF0903B48FB81E5D29E3E45565AB2A6D9F26746D2A0E310F107E903",

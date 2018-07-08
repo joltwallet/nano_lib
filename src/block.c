@@ -12,7 +12,6 @@
 
 #include "nano_lib.h"
 #include "jolttypes.h"
-#include "helpers.h"
 
 #ifdef ESP_PLATFORM
 #include "esp_log.h"

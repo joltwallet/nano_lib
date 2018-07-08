@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <byteswap.h>
 #include "sodium.h"
 #include "freertos/FreeRTOS.h"
 
@@ -39,7 +40,7 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
     // Derives the private key from seed at index
     crypto_generichash_state state;
 
-    index = bswap_32(index);
+    index = __bswap_32(index);
 
     crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
     crypto_generichash_update(&state, seed_bin, BIN_256);

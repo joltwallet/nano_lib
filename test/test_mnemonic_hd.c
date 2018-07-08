@@ -14,7 +14,6 @@
 #include "jolttypes.h"
 #include "bipmnemonic.h"
 #include "nano_lib.h"
-#include "../src/helpers.h"
 
 /* Some test vectors were sourced from:
  * https://github.com/trezor/python-mnemonic/blob/master/vectors.json */
@@ -60,7 +59,7 @@ TEST_CASE("Mnemonic to Nano (165) Private Key", "[bip_mnemonic]"){
     nl_private_to_public(guess_public_key_bin, guess_private_key_bin); 
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
-    strlower(guess_public_key_hex);
+    strlwr(guess_public_key_hex);
     TEST_ASSERT_EQUAL_STRING(
             "5b65b0e8173ee0802c2c3e6c9080d1a16b06de1176c938a924f58670904e82c4",
             guess_public_key_hex);
@@ -68,7 +67,7 @@ TEST_CASE("Mnemonic to Nano (165) Private Key", "[bip_mnemonic]"){
     /* Translate Public Key to Address */
     nl_public_to_address(guess_address, sizeof(guess_address),
             guess_public_key_bin);
-    strlower(guess_address);
+    strlwr(guess_address);
     TEST_ASSERT_EQUAL_STRING(
             "xrb_1pu7p5n3ghq1i1p4rhmek41f5add1uh34xpb94nkbxe8g4a6x1p69emk8y1d",
             guess_address);

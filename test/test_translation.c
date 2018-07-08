@@ -13,7 +13,6 @@
 
 #include "jolttypes.h"
 #include "nano_lib.h"
-#include "../src/helpers.h"
 
 TEST_CASE("Raw mbed_mpi to Nano Double", "[nano_lib]"){
     jolt_err_t res;
@@ -69,7 +68,7 @@ TEST_CASE("Public Address To Public Key", "[nano_lib]"){
         "nl_address_to_public returned an unsuccessful code");
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
-    strupper(guess_public_key_hex);
+    strupr(guess_public_key_hex);
     TEST_ASSERT_EQUAL_STRING(
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
             guess_public_key_hex);
@@ -81,7 +80,7 @@ TEST_CASE("Public Address To Public Key", "[nano_lib]"){
         "nl_address_to_public returned an unsuccessful code");
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
-    strupper(guess_public_key_hex);
+    strupr(guess_public_key_hex);
     TEST_ASSERT_EQUAL_STRING(
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
             guess_public_key_hex);
@@ -93,7 +92,7 @@ TEST_CASE("Public Address To Public Key", "[nano_lib]"){
         "nl_address_to_public returned an unsuccessful code");
     sodium_bin2hex(guess_public_key_hex, sizeof(guess_public_key_hex),
             guess_public_key_bin, sizeof(guess_public_key_bin));
-    strupper(guess_public_key_hex);
+    strupr(guess_public_key_hex);
     TEST_ASSERT_EQUAL_STRING(
             "68D2CEA554187DDF4891E2BDC7AB7442F230A650826455411401B41EEC9BED31",
             guess_public_key_hex);
