@@ -12,7 +12,7 @@
 #include "sodium.h"
 
 #include "nano_lib.h"
-#include "helpers.h"
+#include "../src/helpers.h"
 
 
 TEST_CASE("String Case Helpers", "[nano_lib]"){

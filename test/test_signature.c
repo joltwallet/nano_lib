@@ -11,15 +11,16 @@
 #include <esp_system.h>
 #include "sodium.h"
 
+#include "jolttypes.h"
 #include "nano_lib.h"
-#include "helpers.h"
+#include "../src/helpers.h"
 
 
 TEST_CASE("Verify Signature", "[nano_lib]"){
     uint256_t test_public_key_bin;
     uint512_t test_sig_bin;
     const char test_message[] = "Block-Lattice";
-    nl_err_t res;
+    jolt_err_t res;
 
     /* Test 1 */
     sodium_hex2bin(test_public_key_bin, sizeof(test_public_key_bin), \

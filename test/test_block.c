@@ -11,8 +11,9 @@
 #include <esp_system.h>
 #include "sodium.h"
 
+#include "jolttypes.h"
 #include "nano_lib.h"
-#include "helpers.h"
+#include "../src/helpers.h"
 
 
 TEST_CASE("Verify Block Hash", "[nano_lib]"){
@@ -155,7 +156,7 @@ TEST_CASE("Verify Block Hash", "[nano_lib]"){
 }
 
 TEST_CASE("Sign State Block", "[nano_lib]"){
-    nl_err_t res;
+    jolt_err_t res;
     hex512_t guess_sig_hex;
     CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
@@ -198,7 +199,7 @@ TEST_CASE("Sign State Block", "[nano_lib]"){
 }
 
 TEST_CASE("Sign Send Block", "[nano_lib]"){
-    nl_err_t res;
+    jolt_err_t res;
     hex512_t guess_sig_hex;
     CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
@@ -247,7 +248,7 @@ TEST_CASE("Sign Send Block", "[nano_lib]"){
 }
 
 TEST_CASE("Sign Receive Block", "[nano_lib]"){
-    nl_err_t res;
+    jolt_err_t res;
     hex512_t guess_sig_hex;
     CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
@@ -286,7 +287,7 @@ TEST_CASE("Sign Receive Block", "[nano_lib]"){
 }
 
 TEST_CASE("Sign Change Block", "[nano_lib]"){
-    nl_err_t res;
+    jolt_err_t res;
     hex512_t guess_sig_hex;
     CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;
@@ -325,7 +326,7 @@ TEST_CASE("Sign Change Block", "[nano_lib]"){
 }
 
 TEST_CASE("Sign Open Block", "[nano_lib]"){
-    nl_err_t res;
+    jolt_err_t res;
     hex512_t guess_sig_hex;
     CONFIDENTIAL uint256_t test_private_key_bin;
     nl_block_t block;

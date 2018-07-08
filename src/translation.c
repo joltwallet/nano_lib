@@ -11,6 +11,7 @@
 #include "freertos/FreeRTOS.h"
 
 #include "nano_lib.h"
+#include "jolttypes.h"
 
 #define CHECKSUM_LEN 5
 #define B_11111 31
@@ -21,7 +22,7 @@
 
 static const char *TAG = "nl_translation";
 
-nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
+jolt_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
         const uint256_t public_key){
     /* Translates a 256-bit binary public key into a NANO/XRB Address.
      *
@@ -97,7 +98,7 @@ nl_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_len,
     return E_SUCCESS;
 }
 
-nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
+jolt_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
     /* Translates an address to binary public key
      *
      * pub_key - 256-bit buffer to store the translated public key
@@ -202,7 +203,7 @@ nl_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
     return E_SUCCESS;
 }
 
-nl_err_t nl_mpi_to_nano_fixed_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t buf_out_len){
+jolt_err_t nl_mpi_to_nano_fixed_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t buf_out_len){
     /* Produces string with 41 characters:
      *     * 39 digits
      *     * 1 decimal point
@@ -252,7 +253,7 @@ nl_err_t nl_mpi_to_nano_fixed_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t 
 
 #if 0
 // todo: finish this up
-nl_err_t nl_mpi_to_nano_round_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t buf_out_len, uint8_t n_dec){
+jolt_err_t nl_mpi_to_nano_round_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t buf_out_len, uint8_t n_dec){
     /* Removes uneccessary leading zeros, guarenteed accurate rounds to n_dec */
     char buf[41];
     if( E_SUCCESS != nl_mpi_to_nano_fixed_str(amount_m, buf, sizeof(buf))){
@@ -307,10 +308,10 @@ nl_err_t nl_mpi_to_nano_round_str(mbedtls_mpi *amount_m, char *buf_out, uint8_t 
 }
 #endif
 
-nl_err_t nl_mpi_to_nano_double(mbedtls_mpi *amount_m, double *amount_d){
+jolt_err_t nl_mpi_to_nano_double(mbedtls_mpi *amount_m, double *amount_d){
     /* Be careful of rounding/floating-point errors. For display purposes only.
      * For guarenteed stable rounding, use:
-     *     nl_err_t nl_mpi_to_nano_round_str
+     *     jolt_err_t nl_mpi_to_nano_round_str
      * */
     char buf[41];
     if( E_SUCCESS != nl_mpi_to_nano_fixed_str(amount_m, buf, sizeof(buf))){

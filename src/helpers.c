@@ -47,15 +47,3 @@ void strnlower(char *s, const int n){
             s[c] = s[c] + 32;
     }
 }
-
-void nl_generate_seed(uint256_t seed_bin){
-    // Generates a random 32-long array (256 bits) of random data into seed_bin
-    uint32_t rand_buffer;
-
-    for(uint8_t i=0; i<8; i++){
-        rand_buffer = randombytes_random();
-        memcpy(seed_bin + 4*i, &rand_buffer, sizeof(rand_buffer));
-    }
-    sodium_memzero(&rand_buffer, sizeof(rand_buffer));
-}
-

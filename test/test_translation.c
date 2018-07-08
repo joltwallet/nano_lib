@@ -11,11 +11,12 @@
 #include <esp_system.h>
 #include "sodium.h"
 
+#include "jolttypes.h"
 #include "nano_lib.h"
-#include "helpers.h"
+#include "../src/helpers.h"
 
 TEST_CASE("Raw mbed_mpi to Nano Double", "[nano_lib]"){
-    nl_err_t res;
+    jolt_err_t res;
     char rounded_str[40];
     double d;
     mbedtls_mpi m;
@@ -59,7 +60,7 @@ TEST_CASE("Raw mbed_mpi to Nano Double", "[nano_lib]"){
 TEST_CASE("Public Address To Public Key", "[nano_lib]"){
     uint256_t guess_public_key_bin;
     hex256_t guess_public_key_hex;
-    nl_err_t res;
+    jolt_err_t res;
 
     /* Test 1 - Standard Case (xrb_ prefix)*/
     res = nl_address_to_public(guess_public_key_bin,
@@ -109,7 +110,7 @@ TEST_CASE("Public Key To Public Address", "[nano_lib]"){
     char guess_address[ADDRESS_BUF_LEN];
     char short_buffer[10];
     uint256_t test_public_key_bin;
-    nl_err_t res;
+    jolt_err_t res;
 
     /* Test 1 - Normal Use*/
     sodium_hex2bin(test_public_key_bin, sizeof(test_public_key_bin), \
