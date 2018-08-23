@@ -14,7 +14,6 @@
 
 #include "nano_lib.h"
 #include "jolttypes.h"
-#include "helpers.h"
 
 // Derives Nano Public Key from Private Key
 void nl_private_to_public(uint256_t pk, const uint256_t sk) {  
