@@ -6,6 +6,7 @@
 #ifndef __NANO_LIB_H__
 #define __NANO_LIB_H__
 
+#include <stdbool.h>
 #include "mbedtls/bignum.h"
 #include "jolttypes.h"
 
