@@ -309,10 +309,6 @@ jolt_err_t nl_mpi_to_nano_round_str(mbedtls_mpi *amount_m, char *buf_out, uint8_
 #endif
 
 jolt_err_t nl_mpi_to_nano_double(mbedtls_mpi *amount_m, double *amount_d){
-    /* Be careful of rounding/floating-point errors. For display purposes only.
-     * For guarenteed stable rounding, use:
-     *     jolt_err_t nl_mpi_to_nano_round_str
-     * */
     char buf[41];
     if( E_SUCCESS != nl_mpi_to_nano_fixed_str(amount_m, buf, sizeof(buf))){
         return E_FAILURE;

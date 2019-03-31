@@ -50,17 +50,10 @@ static uint64_t pow_output (uint256_t hash, uint64_t nonce){
 }
 
 bool nl_pow_verify(uint256_t hash, uint64_t nonce){
-    /* Usually hash is the previous block hash. For open blocks its the
-     * public key.
-     *
-     * Returns True on success
-     */
     return pow_output (hash, nonce) >= publish_full_threshold;
 }
 
 uint64_t nl_compute_local_pow(uint256_t hash, uint64_t nonce){
-    // Starts guessing nonces starting from the passed in nonce.
-    // If you don't care, the passed in nonce can simply be 0
     for(; !nl_pow_verify(hash, nonce); nonce++);
     return nonce;
 }
