@@ -13,7 +13,7 @@
 
 #include "nano_lib.h"
 
-static uint64_t const publish_test_threshold = 0xff00000000000000;
+//static uint64_t const publish_test_threshold = 0xff00000000000000;
 static uint64_t const publish_full_threshold = 0xffffffc000000000;
 
 jolt_err_t nl_parse_server_work_string(hex64_t work_str, uint64_t *work_int){
