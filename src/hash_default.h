@@ -16,7 +16,7 @@ typedef crypto_generichash_blake2b_state nl_hash_ctx_t;
  */
 static inline int nl_hash_init(nl_hash_ctx_t *ctx, uint8_t hash_len)
 {
-    crypto_generichash_blake2b_init(ctx, NULL, 0, output_hash_len);
+    crypto_generichash_blake2b_init(ctx, NULL, 0, hash_len);
     return 0;
 }
 

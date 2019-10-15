@@ -4,9 +4,9 @@
 #include "sdkconfig.h"
 
 #if CONFIG_NANO_LIB_CUSTOM_HASH
-    #include "hash_default.h"
-#else
     #include "../../nl_hash.h"
+#else
+    #include "hash_default.h"
 #endif
 
 #endif
