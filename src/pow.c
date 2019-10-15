@@ -10,6 +10,7 @@
 #include "sodium.h"
 #include "sodium/private/common.h"
 #include "freertos/FreeRTOS.h"
+#include "hash_wrapper.h"
 
 #include "nano_lib.h"
 
@@ -41,11 +42,11 @@ static uint64_t pow_output (uint256_t hash, uint64_t nonce){
      * output hash to be high
      */
     uint64_t res;
-    crypto_generichash_blake2b_state state;
-    crypto_generichash_blake2b_init(&state, NULL, 0, sizeof(res));
-    crypto_generichash_blake2b_update(&state, (uint8_t *)&nonce, sizeof(nonce));
-    crypto_generichash_blake2b_update(&state, hash, BIN_256);
-    crypto_generichash_blake2b_final(&state, (uint8_t *)&res, sizeof(res));
+    nl_hash_ctx_t state;
+    nl_hash_init(&state, sizeof(res));
+    nl_hash_update(&state, (uint8_t *)&nonce, sizeof(nonce));
+    nl_hash_update(&state, hash, BIN_256);
+    nl_hash_final(&state, (uint8_t *)&res, sizeof(res));
     return res;
 }
 

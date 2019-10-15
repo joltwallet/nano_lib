@@ -9,6 +9,7 @@
 #include "sodium.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "hash_wrapper.h"
 
 #include "nano_lib.h"
 #include "jolttypes.h"
@@ -50,7 +51,7 @@ jolt_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_le
     uint8_t i, c;
     uint8_t check[CHECKSUM_LEN];
 
-    crypto_generichash_state state;
+    nl_hash_ctx_t state;
 
     // sizeof includes the null character required
     if (address_buf_len < (sizeof(CONFIG_NANO_LIB_ADDRESS_PREFIX) + ADDRESS_DATA_LEN)){
@@ -58,9 +59,9 @@ jolt_err_t nl_public_to_address(char address_buf[], const uint8_t address_buf_le
     }
 
     // Compute the checksum
-    crypto_generichash_init( &state, NULL, 0, CHECKSUM_LEN);
-    crypto_generichash_update( &state, public_key, BIN_256);
-    crypto_generichash_final( &state, check, sizeof(check));
+    nl_hash_init( &state, CHECKSUM_LEN);
+    nl_hash_update( &state, public_key, BIN_256);
+    nl_hash_final( &state, check, sizeof(check));
 
     // Copy in the prefix and shift pointer
     strlcpy(address_buf, CONFIG_NANO_LIB_ADDRESS_PREFIX, address_buf_len);
@@ -204,10 +205,10 @@ jolt_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
     #undef accPipeByte
 
     // Verify the checksum of the address
-    crypto_generichash_state state;
-    crypto_generichash_init(&state, NULL, 0, CHECKSUM_LEN);
-    crypto_generichash_update(&state, pub_key, BIN_256);
-    crypto_generichash_final(&state, check, CHECKSUM_LEN);
+    nl_hash_ctx_t state;
+    nl_hash_init(&state, CHECKSUM_LEN);
+    nl_hash_update(&state, pub_key, BIN_256);
+    nl_hash_final(&state, check, CHECKSUM_LEN);
 
     for (i = 0; i < sizeof(check); i++) {
         if (check[i] != checkInp[i]) {

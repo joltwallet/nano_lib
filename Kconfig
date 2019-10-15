@@ -30,4 +30,20 @@ menu "Nano ESP32 Library Config"
         help
             BIP39/44 index to use
 
+    config NANO_LIB_CUSTOM_HASH
+        bool
+        prompt "Use custom blake2b implementation."
+        default n
+        help
+            Copy nano_lib_hash.h into the parent directory and populate.
+            
+
+    config NANO_LIB_SIGNATURE_INTERNAL
+        bool
+        prompt "Use standalone signature code"
+        default y
+        help
+            Use an internal implementation of ed25519 rather than depending on
+            libsodium internals.
+
 endmenu

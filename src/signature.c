@@ -9,6 +9,7 @@
 #include <byteswap.h>
 #include "sodium.h"
 #include "freertos/FreeRTOS.h"
+#include "hash_wrapper.h"
 
 #include "sodium/private/curve25519_ref10.h"
 
@@ -20,10 +21,10 @@ void nl_private_to_public(uint256_t pk, const uint256_t sk) {
     ge_p3 A;
     
     uint512_t hash;
-    crypto_generichash_blake2b_state state;
-    crypto_generichash_blake2b_init(&state, NULL, 0, BIN_512);
-    crypto_generichash_blake2b_update(&state, sk, BIN_256);
-    crypto_generichash_blake2b_final(&state, hash, BIN_512);  
+    nl_hash_ctx_t state;
+    nl_hash_init(&state, BIN_512);
+    nl_hash_update(&state, sk, BIN_256);
+    nl_hash_final(&state, hash, BIN_512);  
 
     hash[0] &= 248;
     hash[31] &= 63;
@@ -37,14 +38,14 @@ void nl_private_to_public(uint256_t pk, const uint256_t sk) {
 void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
         uint32_t index){
     // Derives the private key from seed at index
-    crypto_generichash_state state;
+    nl_hash_ctx_t state;
 
     index = __bswap_32(index);
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, seed_bin, BIN_256);
-    crypto_generichash_update(&state, (uint8_t *)&index, sizeof(index));
-    crypto_generichash_final(&state, priv_key, BIN_256);
+    nl_hash_init(&state, BIN_256);
+    nl_hash_update(&state, seed_bin, BIN_256);
+    nl_hash_update(&state, (uint8_t *)&index, sizeof(index));
+    nl_hash_final(&state, priv_key, BIN_256);
 
     sodium_memzero(&state, sizeof(state));
 }
@@ -60,25 +61,25 @@ void nl_sign_detached(uint512_t sig,
      * sk - Secret Key
      * pk - Public Key
     */
-    crypto_generichash_blake2b_state hs;
+    nl_hash_ctx_t hs;
     CONFIDENTIAL unsigned char az[64];
     unsigned char nonce[64];
     unsigned char hram[64];
     ge_p3 R;
 
     // Generate 64 bytes (512 bits) from private key into az
-    crypto_generichash_blake2b_init(&hs, NULL, 0, 64);
-    crypto_generichash_blake2b_update(&hs, sk, 32);
-    crypto_generichash_blake2b_final(&hs, az, 64);
+    nl_hash_init(&hs, 64);
+    nl_hash_update(&hs, sk, 32);
+    nl_hash_final(&hs, az, 64);
 
     az[0] &= 248;
     az[31] &= 63;
     az[31] |= 64;
 
-    crypto_generichash_blake2b_init(&hs, NULL, 0, 64);
-    crypto_generichash_blake2b_update(&hs, az + 32, 32);
-    crypto_generichash_blake2b_update(&hs, m, mlen);
-    crypto_generichash_blake2b_final(&hs, nonce, 64);
+    nl_hash_init(&hs, 64);
+    nl_hash_update(&hs, az + 32, 32);
+    nl_hash_update(&hs, m, mlen);
+    nl_hash_final(&hs, nonce, 64);
 
     memmove(sig + 32, pk, 32); // set upper 32 bits of sig
 
@@ -86,10 +87,10 @@ void nl_sign_detached(uint512_t sig,
     ge_scalarmult_base(&R, nonce);
     ge_p3_tobytes(sig, &R);
 
-    crypto_generichash_blake2b_init(&hs, NULL, 0, 64);
-    crypto_generichash_blake2b_update(&hs, sig, 64);
-    crypto_generichash_blake2b_update(&hs, m, mlen);
-    crypto_generichash_blake2b_final(&hs, hram, 64);
+    nl_hash_init(&hs, 64);
+    nl_hash_update(&hs, sig, 64);
+    nl_hash_update(&hs, m, mlen);
+    nl_hash_final(&hs, hram, 64);
 
     sc_reduce(hram);
     sc_muladd(sig + 32, hram, az, nonce);
@@ -108,7 +109,7 @@ jolt_err_t nl_verify_sig_detached(const uint512_t sig,
      * sk - Secret Key
      * pk - Public Key
     */
-    crypto_generichash_blake2b_state hs;
+    nl_hash_ctx_t hs;
     unsigned char            h[64];
     unsigned char            rcheck[32];
     unsigned int             i;
@@ -131,11 +132,11 @@ jolt_err_t nl_verify_sig_detached(const uint512_t sig,
     }
 
     // Generate 64 bytes (512 bits) from private key into az
-    crypto_generichash_blake2b_init(&hs, NULL, 0, 64);
-    crypto_generichash_blake2b_update(&hs, sig, 32);
-    crypto_generichash_blake2b_update(&hs, pk, 32);
-    crypto_generichash_blake2b_update(&hs, m, mlen);
-    crypto_generichash_blake2b_final(&hs, h, 64);
+    nl_hash_init(&hs, 64);
+    nl_hash_update(&hs, sig, 32);
+    nl_hash_update(&hs, pk, 32);
+    nl_hash_update(&hs, m, mlen);
+    nl_hash_final(&hs, h, 64);
 
     sc_reduce(h);
     ge_double_scalarmult_vartime(&R, h, &A, sig + 32);

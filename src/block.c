@@ -9,6 +9,7 @@
 #include "sodium.h"
 #include "freertos/FreeRTOS.h"
 #include "mbedtls/bignum.h"
+#include "hash_wrapper.h"
 
 #include "nano_lib.h"
 #include "jolttypes.h"
@@ -133,60 +134,60 @@ jolt_err_t nl_block_sign(nl_block_t *block,
 }
 
 static void hash_state (const nl_block_t *block, uint256_t digest){
-    crypto_generichash_state state;
+    nl_hash_ctx_t state;
     uint128_t balance;
 
     mbedtls_mpi_write_binary(&(block->balance), balance, sizeof(balance));
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, STATE_BLOCK_PREAMBLE, sizeof(STATE_BLOCK_PREAMBLE));
-    crypto_generichash_update(&state, block->account, sizeof(block->account));
-    crypto_generichash_update(&state, block->previous, sizeof(block->previous));
-    crypto_generichash_update(&state, block->representative, sizeof(block->representative));
-    crypto_generichash_update(&state, balance, sizeof(balance));
-    crypto_generichash_update(&state, block->link, sizeof(block->link));
-    crypto_generichash_final(&state, digest, BIN_256);
+    nl_hash_init(&state, BIN_256);
+    nl_hash_update(&state, STATE_BLOCK_PREAMBLE, sizeof(STATE_BLOCK_PREAMBLE));
+    nl_hash_update(&state, block->account, sizeof(block->account));
+    nl_hash_update(&state, block->previous, sizeof(block->previous));
+    nl_hash_update(&state, block->representative, sizeof(block->representative));
+    nl_hash_update(&state, balance, sizeof(balance));
+    nl_hash_update(&state, block->link, sizeof(block->link));
+    nl_hash_final(&state, digest, BIN_256);
 }
 
 static void hash_open (const nl_block_t *block, uint256_t digest){
-    crypto_generichash_state state;
+    nl_hash_ctx_t state;
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, block->link, sizeof(block->link));
-    crypto_generichash_update(&state, block->representative, sizeof(block->representative));
-    crypto_generichash_update(&state, block->account, sizeof(block->account));
-    crypto_generichash_final(&state, digest, BIN_256);
+    nl_hash_init(&state, BIN_256);
+    nl_hash_update(&state, block->link, sizeof(block->link));
+    nl_hash_update(&state, block->representative, sizeof(block->representative));
+    nl_hash_update(&state, block->account, sizeof(block->account));
+    nl_hash_final(&state, digest, BIN_256);
 }
 
 static void hash_change (const nl_block_t *block, uint256_t digest){
-    crypto_generichash_state state;
+    nl_hash_ctx_t state;
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, block->previous, sizeof(block->previous));
-    crypto_generichash_update(&state, block->representative, sizeof(block->representative));
-    crypto_generichash_final(&state, digest, BIN_256);
+    nl_hash_init(&state, BIN_256);
+    nl_hash_update(&state, block->previous, sizeof(block->previous));
+    nl_hash_update(&state, block->representative, sizeof(block->representative));
+    nl_hash_final(&state, digest, BIN_256);
 }
 
 static void hash_send (const nl_block_t *block, uint256_t digest){
     uint128_t balance;
-    crypto_generichash_state state;
+    nl_hash_ctx_t state;
 
     mbedtls_mpi_write_binary(&(block->balance), balance, sizeof(balance));
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, block->previous, sizeof(block->previous));
-    crypto_generichash_update(&state, block->link, sizeof(block->link));
-    crypto_generichash_update(&state, balance, sizeof(balance));
-    crypto_generichash_final(&state, digest, BIN_256);
+    nl_hash_init(&state, BIN_256);
+    nl_hash_update(&state, block->previous, sizeof(block->previous));
+    nl_hash_update(&state, block->link, sizeof(block->link));
+    nl_hash_update(&state, balance, sizeof(balance));
+    nl_hash_final(&state, digest, BIN_256);
 }
 
 static void hash_receive (const nl_block_t *block, uint256_t digest){
-    crypto_generichash_state state;
+    nl_hash_ctx_t state;
 
-    crypto_generichash_init(&state, NULL, BIN_256, BIN_256);
-    crypto_generichash_update(&state, block->previous, sizeof(block->previous));
-    crypto_generichash_update(&state, block->link, sizeof(block->link));
-    crypto_generichash_final(&state, digest, BIN_256);
+    nl_hash_init(&state, BIN_256);
+    nl_hash_update(&state, block->previous, sizeof(block->previous));
+    nl_hash_update(&state, block->link, sizeof(block->link));
+    nl_hash_final(&state, digest, BIN_256);
 }
 
 jolt_err_t nl_block_compute_hash(const nl_block_t *block, uint256_t hash){
