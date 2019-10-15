@@ -10,13 +10,20 @@
 #include "sodium.h"
 #include "freertos/FreeRTOS.h"
 #include "hash_wrapper.h"
-
-#include "sodium/private/curve25519_ref10.h"
+#include "sdkconfig.h"
 
 #include "nano_lib.h"
 #include "jolttypes.h"
 
-// Derives Nano Public Key from Private Key
+#if CONFIG_NANO_LIB_SIGNATURE_INTERNAL
+/* Modified orlp/ed25519 implementation */
+#include "ge.h"
+#include "sc.h"
+#else
+/* libsodium implementation */
+#include "sodium/private/curve25519_ref10.h"
+#endif
+
 void nl_private_to_public(uint256_t pk, const uint256_t sk) {  
     ge_p3 A;
     
@@ -34,7 +41,6 @@ void nl_private_to_public(uint256_t pk, const uint256_t sk) {
     ge_p3_tobytes(pk, &A);
 }
 
-// Derive Nano Private Key From Seed and Index
 void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
         uint32_t index){
     // Derives the private key from seed at index
@@ -50,7 +56,6 @@ void nl_seed_to_private(uint256_t priv_key, const uint256_t seed_bin,
     sodium_memzero(&state, sizeof(state));
 }
 
-// Sign some message m
 void nl_sign_detached(uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t sk, const uint256_t pk){
@@ -98,7 +103,6 @@ void nl_sign_detached(uint512_t sig,
     sodium_memzero(az, sizeof az);
 }
 
-// Verify some message m
 jolt_err_t nl_verify_sig_detached(const uint512_t sig,
         const unsigned char m[], unsigned int mlen,
         const uint256_t pk){
