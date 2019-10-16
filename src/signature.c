@@ -146,6 +146,5 @@ jolt_err_t nl_verify_sig_detached(const uint512_t sig,
     ge_double_scalarmult_vartime(&R, h, &A, sig + 32);
     ge_tobytes(rcheck, &R);
 
-    return crypto_verify_32(rcheck, sig) | (-(rcheck == sig)) |
-           sodium_memcmp(sig, rcheck, 32);
+    return sodium_memcmp(sig, rcheck, 32);
 }
