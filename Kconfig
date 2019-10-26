@@ -18,7 +18,7 @@ menu "Nano ESP32 Library Config"
         string
         prompt "prefix to apply for address data"
         depends on NANO_LIB_ENABLE
-        default "xrb_"
+        default "nano_"
         help
             Typically "xrb_" or "nano_"
 
