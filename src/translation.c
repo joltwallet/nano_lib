@@ -2,6 +2,7 @@
  Copyright (C) 2018  Brian Pugh, James Coxon, Michael Smaili
  https://www.joltwallet.com/
  */
+#define LOG_LOCAL_LEVEL 4
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -127,6 +128,8 @@ jolt_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
     uint8_t check[CHECKSUM_LEN] = {0};
     uint8_t size = strlen(address);
 
+    ESP_LOGI(TAG, "Translating address %s", address);
+
     // Check prefix and exclude it from the buffer
     if ((address[0] == 'n' || address[0] == 'N') &&
         (address[1] == 'a' || address[1] == 'A') &&
@@ -134,6 +137,7 @@ jolt_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
         (address[3] == 'o' || address[3] == 'O') &&
         (address[4] == '-' || address[4] == '_')) {
         if (size != ADDRESS_DATA_LEN + 5) {
+            ESP_LOGE(TAG, "Invalid address length with nano_ prefix");
             return E_INVALID_ADDRESS;
         }
         size -= 5;
@@ -143,12 +147,14 @@ jolt_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
                (address[2] == 'b' || address[2] == 'B') &&
                (address[3] == '-' || address[3] == '_')) {
         if (size != ADDRESS_DATA_LEN + 4) {
+            ESP_LOGE(TAG, "Invalid address length with xrb_ prefix");
             return E_INVALID_ADDRESS;
         }
         size -= 4;
         address += 4;
     }
     if (size != ADDRESS_DATA_LEN){
+        ESP_LOGE(TAG, "Invalid Address prefix");
         return E_INVALID_ADDRESS;
     }
 
@@ -205,13 +211,15 @@ jolt_err_t nl_address_to_public(uint256_t pub_key, const char address[]){
     #undef accPipeByte
 
     // Verify the checksum of the address
+    ESP_LOGI(TAG, "Translating address %s", address);
     nl_hash_ctx_t state;
-    nl_hash_init(&state, CHECKSUM_LEN);
-    nl_hash_update(&state, pub_key, BIN_256);
-    nl_hash_final(&state, check, CHECKSUM_LEN);
+    if(0 != nl_hash_init(&state, CHECKSUM_LEN) ) return E_FAILURE;
+    if(0 != nl_hash_update(&state, pub_key, BIN_256) ) return E_FAILURE;
+    if(0 != nl_hash_final(&state, check, CHECKSUM_LEN) ) return E_FAILURE;
 
     for (i = 0; i < sizeof(check); i++) {
         if (check[i] != checkInp[i]) {
+            ESP_LOGE(TAG, "Invalid address checksum \"%s\"", address);
             return E_INVALID_ADDRESS;
         }
     }
